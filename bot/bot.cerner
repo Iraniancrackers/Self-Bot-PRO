@@ -1,0 +1,2536 @@
+dofile('./bot/utils.cerner')
+_config = dofile('./config.cerner')
+HelpSelf = _config.Hsp
+Helphome = _config.HelpS
+HelpGrouP = _config.HelpGroup
+helpott = _config.helpot
+HelpCf = _config.helpcloud
+pth = '/home/amir/.telegram-bot/MCP/files/'
+pth2 ="/home/amir/.telegram-bot/MCP/data/"
+URL = require('socket.url')
+http = require('socket.http')
+https = require('ssl.https')
+json = dofile('./libs/JSON.lua')
+serpent = dofile("./libs/serpent.lua")
+tdbot = dofile("./bot/function.cerner")
+utf8 = dofile('./bot/utf8.cerner')
+MsgTime = os.time() - 60
+day = 86400
+--Redis =  require ('redis')
+--redis = Redis.connect('127.0.0.1', 6379)
+local function vardump(value)
+  --  print '\n-------------------------------------------------------------- START'
+   -- print(serpent.block(value, {comment=false}))
+  --  print '--------------------------------------------------------------- STOP\n'
+  end
+  function dl_cb(arg, data)
+    -- print '\n===================================================================='
+ --   vardump(arg)
+ --   vardump(data)
+    -- print '--==================================================================\n'
+  end
+function GetMessages(msg,data)
+if msg then
+redis:incr(my.."allmsgs")
+if msg.date < tonumber(MsgTime) then
+return false
+end
+if not redis:sismember(my..'AllGroup',msg.chat_id) then
+redis:sadd(my..'AllGroup',msg.chat_id)
+end  
+if chat_type(msg.chat_id) == 'private' then
+if redis:get(my..'Flood:Pv:'..my) then
+if not is_sudo(msg) then
+local post_count = 'user:' .. msg.sender_user_id .. ':flooder'
+local msgs = tonumber(redis:get(my..post_count) or 0)
+if msgs > tonumber(flood_MAX) then
+if redis:get(my..'user:'..msg.sender_user_id..':flooder') then
+tdbot.Block(msg.sender_user_id)
+return false
+else
+redis:setex(my..'user:'..msg.sender_user_id..':flooder', 15, true)
+end
+end
+redis:setex(my..post_count, tonumber(TIME_CHECK), msgs+1)
+end
+end
+end
+if chat_id then
+local id = tostring(msg.chat_id)
+if id:match('-100(%d+)') then
+if not redis:sismember(my.."SuperGroup",msg.chat_id) then
+redis:sadd(my.."SuperGroup",msg.chat_id)
+redis:sadd(my.."Addtoall",msg.chat_id)
+end
+-----------------------------------
+elseif id:match('^-(%d+)') then
+if not redis:sismember(my.."Groups",msg.chat_id) then
+redis:sadd(my.."Groups",msg.chat_id)
+redis:sadd(my.."Addtoall",msg.chat_id)
+end
+-----------------------------------------
+elseif id:match('^(%d+)') then
+if not redis:sismember(my.."Users",msg.chat_id) then
+redis:sadd(my.."Users",msg.chat_id)
+end
+else
+if not redis:sismember(my.."SuperGroup",msg.chat_id) then
+redis:sadd(my.."SuperGroup",msg.chat_id)
+
+end
+end
+end
+-------------MSG MATCHES------------
+cerner = msg.content.text
+ cernerw = msg.content.text
+ cernerbk = msg.content.text
+if cerner then
+chat_id = msg.chat_id
+cerner = cerner:lower()
+end
+if cernerbk then
+cernerbk = cernerbk:lower()
+end
+if cerner then
+if cerner:match('^[/#!]') then
+cerner= cerner:gsub('^[/#!]','')
+end
+elseif cernerw then
+if cernerw:match('^[/#!]') then
+cernerw=cernerw:gsub('^[/#!]','')
+end
+end
+if cerner and not is_sudo(msg) then
+local mtn = redis:hget(my.."Self-BotChats",cerner)
+sendText(chat_id,msg.id,mtn,'html')
+end
+if cerner == 'self off' and is_sudo(msg) then
+if redis:get(my..'SelfOnline:') then
+tdbot.send(msg.chat_id, msg.id, '• `Self`   is _Already_ `Offlined in group !`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '• `Self` *Has Been Offlined in group !*' , 'md')
+redis:set(my..'SelfOnline:',true)
+end
+end
+if redis:get(my..'pIN:h:'..msg.chat_id) and not is_sudo(msg) then
+    if msg.content._ == 'messagePinMessage' then
+        tdbot.Unpin(msg.chat_id)
+    local PIN_ID = redis:get(my..'pIN:h:'..msg.chat_id)
+        tdbot.Pin(msg.chat_id,PIN_ID,0)
+
+    end
+    end
+    if cernerw and is_sudo(msg) then
+        if redis:get(my..'TextType:') == 'Mention' then
+  tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),my)
+        elseif redis:get(my..'TextType:') == 'Code' then
+        tdbot.send(msg.chat_id,msg.id,'`'..cernerw..'`','md')
+    elseif redis:get(my..'TextType:') == 'Bold' then
+        tdbot.send(msg.chat_id,msg.id,'*'..cernerw..'*','md')
+    elseif redis:get(my..'TextType:') == 'Italic' then
+        tdbot.send(msg.chat_id,msg.id,'_'..cernerw..'_','md')
+    end
+end
+if cerner == 'self on' and is_sudo(msg) then
+if redis:get(my..'SelfOnline:') then
+tdbot.send(msg.chat_id, msg.id, '• `Self` *Has Been Onlined in group !*' , 'md')
+redis:del(my..'SelfOnline:')
+else
+tdbot.send(msg.chat_id, msg.id, '• `Self`  is _Already_  `Onlined in group !`' , 'md')
+end
+end
+if cerner == 'help' and is_sudo(msg) then
+local text = [[
+#self on 
+شروع بکار ! 
+#self off 
+پایان دادن به  تمام عملکرد ها در گروه
+#panel 
+وضعیت عکس العمل 
+#clerk on 
+فعال سازی حالت منشی 
+{در وضیت افلاینی شما شروع به کار میکند ! }
+#clerk off 
+غیرفعال سازی منشی {خاموش کردن چکینگ وضعیت شما}
+#answer on 
+فعال سازی حالت پاسخگویی {
+هر فردی که اسم شما یا لقب شما را بگوید !}
+#asnwer off
+غیرفعال سازی پاسخگویی خودکار
+#markread on
+تیک خوردن پیام ها 
+#markread off 
+تیک نخوردن پیام
+#echo on 
+فعال سازی echo در تمام گروه ها
+#echo off
+#غیرفعال سازی echo در تمامی گروه
+#typing on
+فعال سازی حالت تایپینگ
+#typing off 
+غیرفعال سازی تایپینگ 
+#save 
+فروارد پیام به فضای ابری
+#malevolent on 
+فعال سازی وضعیت مواجه با بد خواه 
+#malevolent off
+غیرفعال سازی وضیت مواجه با بد خواه 
+#Flood [num] > [reply]
+فلود کردن 
+#save [file]
+دخیره فایل مورد نظر در دیتابیس
+#get [files]
+دریافت فایل ذخیره شده در دیتابیس
+#delfile [filecmd]
+حذف فایل ذخیره شده در دیتابیس
+#files
+دیافت لیست فایل های ذخیره شده با فرمت و  حجم آن
+#stickerset [cmd]
+دخیره استیکر در دیتابیس + دستور گت
+#stickers 
+ لیست استیکر های ذخیره شده 
+#stickerdel [cmd]
+حذف استیکر از دیتابیس با دستور گت آن
+#gifset [cmd]
+ذخیره گیف در دیتابیس + دستور گت
+#gifdel [cmd]
+حذف گیف از دیتا بیس با دستور گت آن
+#gifs 
+لیست گیف های دخیره شده
+
+#reload 
+بازنگری ربات
+#`setenemy` [reply] or [user_id] or [mention] or [@username]
+افزودن کاربر به لیست دشمنان
+#`delenemy` [reply] or [user_id] or [mention] or [@username]
+حدف کاربر از لیست دشمنان
+#kick [reply] or [user_id] or [mention] or [@username]
+اخراج کاربر از گروه 
+#delall [reply] or [user_id] or [mention] or [@username]
+پاکسازی تمام پیام های فرد
+#del
+پاک کردن پیام
+#id [reply] or [user_id] or [mention] or [@username]
+دریافت شناسه کاربر مورد نظر
+#mydel 
+پاکسازی تمام پیام های شما 
+#clean msgs
+پاکسازی پیام ها تا حد امکان
+#enemylist
+لیست دشمنان
+#bk
+ارسال گیف BK
+#res [user_id] or [mention] 
+دریافت اطلاعات کاربر مورد نظر
+#share [reply]
+ارسال شما شما 
+#addc 
+افزودن شما مورد نظر
+#inv [reply] or [username] or [user_id]
+دعوت کاربر مورد نظر
+#fwd 
+فروارد پیام به همه
+#`unblock` [reply] or [user_id] or [mention] or [@username]
+آزاد کردن کاربر
+#`web` [webpage]
+دریافت اطلاعات در مورد سایت مورد نظر
+#mute [reply] or [user_id] or [mention] or [@username]
+محدود کردن کامل شخص در گروه 
+#mute media [reply] or [user_id] or [mention] or [@username]
+محدود کردن کاربر برای ارسال رسانه در گروه
+#`mute links` [reply] or [user_id] or [mention] or [@username]
+محدود کردن کاربر برای تعبیه لینک در پیام
+#`unmute` [reply] or [user_id] or [mention] or [@username]
+ رفع تمام محدودیت ها !
+#pin [reply]
+سنجاق کردن پیام در گروه
+#unpin
+حذف سنجاق پیام در گروه ! 
+#backup 
+ارسال اخرین نسخه سورس به پیوی شما
+#numberfucking on
+
+#numberfucking off
+
+#clean bots
+
+#clean deleted
+
+#cleanvoicelist
+
+#voicelist
+
+`clean enemylist`
+
+#setclerkmessage [reply] select [video note ] and [Voice]
+ذخیره متن جدید منشی 
+#call [reply] or [user_id] or [mention] or [@username]
+تماس با فرد مورد نظر
+#dlapk [link]
+دانلود فایل با فرمت apk
+#dlmp3 [link]
+دانلود موزیک با لینک
+#dlmp4 [link]
+دانلود ویدیو با لینک
+#`calc` (.*)
+ماشین حساب
+#boobs
+ارسال تصاویر +18
+
+#flood lock
+فعال کردن انتی فلود پیوی
+#flood unlock
+غیرفعال کردن انتی فلود پیوی
+#setflood [num]
+تنظیم حداکثر فلود در پیوی
+#setfloodtime [num]
+تنظیم زمان حساسیت فلود 
+#tosticker
+تبدیل عکس به استیکر
+
+]]
+tdbot.send(chat_id,msg.id,Helphome,'md')
+end
+if cerner == 'help self' and is_sudo(msg) then
+    tdbot.send(chat_id,msg.id,HelpSelf,'md')
+end
+if msg.id and redis:get('Mute:All:'..msg.chat_id) and not is_sudo(msg) then
+    tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+end
+if cerner == 'help group' and is_sudo(msg) then
+    tdbot.send(chat_id,msg.id,HelpGrouP,'md')
+end
+if cerner == 'help cf' and is_sudo(msg) then 
+tdbot.send(msg.chat_id,msg.id,HelpCf,'md')
+end
+if cerner == 'help other' and is_sudo(msg) then
+    tdbot.send(chat_id,msg.id,helpott,'md')
+end
+if is_private(msg) and not is_sudo(msg) then
+if cerner and redis:get(my..'Monshi') and redis:get(my..'MonshiStatus') and not redis:get(my..'Time'..msg.sender_user_id) then
+if redis:get(my..'MessageClerk') == 'text' then
+textclerk = redis:get(my..'TEXT:MessageClerk')
+tdbot.sendText(msg.chat_id,msg.id,textclerk,'md')
+redis:setex(my..'Time'..msg.sender_user_id,120,true)
+elseif redis:get(my..'MessageClerk') == 'voice' then
+local file = redis:get(my.."VOICE:MessageClerk")
+tdbot.sendVoice(msg.chat_id,msg.id, file,':(')
+redis:setex(my..'Time'..msg.sender_user_id,120,true)
+elseif redis:get(my..'MessageClerk') == 'videoNote' then
+local file = redis:get(my.."VIDEONOTE:MessageClerk")
+tdbot.sendVideoNote(msg.chat_id,msg.id,file)
+redis:setex(my..'Time'..msg.sender_user_id,120,true)
+else
+textclerk = 'مشترک مورد نظر در دسترس نمیباشد'
+clerktype = 'text'
+tdbot.sendText(msg.chat_id,msg.id,textclerk,'md')
+redis:setex(my..'Time'..msg.sender_user_id,120,true)
+end
+end
+end
+if msg.sender_user_id and is_sudo(msg) then
+    redis:incr(my.."Botmsg")
+    end
+if msg.content._== "messageText" then
+local function GetM(Company,CerNer)
+local function GetName(Companys,Company)
+print("\027[" ..color.blue[1].. "m["..os.date("%H:%M:%S").."]\027[00m ["..CerNer.title.."]  >>>> "..msg.content.text.."")
+end
+tdbot.getUser(msg.sender_user_id,GetName)
+end
+tdbot.getChat(msg.chat_id,GetM)
+end
+if msg.content.caption then
+function GetM(Company,CerNer)
+function GetName(Companys,Company)
+print("["..os.date("%H:%M:%S").."] "..CerNer.title.."  >>>> "..msg.content.caption.."")
+end
+tdbot.getUser(msg.sender_user_id,GetName)
+end
+tdbot.getChat(msg.chat_id,GetM)
+end
+if msg.content._ == "messageChatAddMembers" then
+function GetM(Company,CerNer)
+function GetName(Companys,Company)
+for i=0,#msg.content.member_user_ids do
+msg.add = msg.content.member_user_ids[i]
+print("["..os.date("%H:%M:%S").."] "..CerNer.title.." "..Company.first_name.." >>>> Added members "..msg.content.member_user_ids[i].." "..Company.first_name.."")
+MsgType = 'AddUser'
+end
+end
+tdbot.getUser(msg.sender_user_id,GetName)
+end
+tdbot.getChat(msg.chat_id,GetM)
+end
+if msg.content._ == "messageChatJoinByLink" then
+function GetM(Company,CerNer)
+function GetName(Companys,Company)
+print("["..os.date("%H:%M:%S").."] "..CerNer.title.." >>>> Joined By link "..Company.first_name.."")
+MsgType = 'JoinedByLink'
+end
+tdbot.getUser(msg.sender_user_id,GetName)
+end
+tdbot.getChat(msg.chat_id,GetM)
+end
+if msg.content._ == "messageDocument" then
+function GetM(Company,CerNer)
+function GetName(Companys,Company)
+MsgType = 'Document'
+end
+tdbot.getUser(msg.sender_user_id,GetName)
+end
+tdbot.getChat(msg.chat_id,GetM)
+end
+if not redis:get(my..'SelfOnline:') then
+if not is_channel(msg) then
+if redis:get(my..'MarkRead:') then
+if cerner then
+tdbot.Markread(msg.chat_id, {[0] = msg.id})   
+end
+end
+if redis:get(my..'Action:') then
+if cerner then
+tdbot.Action(msg.chat_id,'Typing')
+end
+end
+end
+if is_supergroup(msg) or is_group(msg) then
+if redis:get(my..'Malevolent') then
+for k,v in pairs(badkhah) do
+if cerner == v and not is_sudo(msg) then
+tdbot.sendText(msg.chat_id,msg.id,YML[math.random(#YML)],'md')
+end
+end
+end
+if redis:get(my..'Answer')  then
+for k,v in pairs(myname) do
+if cerner == v and not is_sudo(msg) then
+tdbot.sendText(msg.chat_id,msg.id,Answer[math.random(#Answer)],'md')
+end
+end
+end
+if redis:get(my..'Echo'..msg.chat_id) then
+if cerner and not is_sudo(msg) then
+tdbot.forwardMessage(msg.chat_id, msg.chat_id, {[0] = msg.id}, 1)
+end
+end
+end --- SuperGP
+if msg.content._ == "messageAudio" then
+print("[ CerNerCompany ]\nThis is [ Audio ]")
+MsgType = 'Audio'
+elseif msg.content._ == "messageVoice" then
+MsgType = 'Voice'
+elseif msg.content._ == 'messageVideoNote' then
+am = msg.content.video_note.video.id
+tdbot.DWN(am)
+elseif msg.content._ == "messageSticker" then
+sd = msg.content.sticker.sticker.id
+tdbot.DWN(sd)
+elseif msg.content._ == "messagePhoto" then
+MsgType = 'PHOTO'
+photo_id = ''
+if msg.content.photo.sizes[2] then
+pi = msg.content.photo.sizes[2].photo.id
+else
+pi = msg.content.photo.sizes[1].photo.id
+end
+tdbot.DWN(pi)
+elseif msg.content._ == "messageVideo" then
+MsgType = 'Video'
+elseif msg.content._ == "messageAnimation" then
+gi = msg.content.animation.animation.id
+tdbot.DWN(gi)
+print(gi)
+MsgType = 'Gif'
+elseif msg.content._ == "messageLocation" then
+MsgType = 'Location'
+elseif msg.content._ == "messageForwardedFromUser" then
+MsgType = 'messageForwardedFromUser'
+elseif msg.content._ == "messageContact" then
+MsgType = 'Contact'
+elseif not msg.reply_markup and msg.via_bot_user_id ~= 0 then
+MsgType = 'MarkDown'
+elseif msg.content.game then
+MsgType = 'Game'
+elseif msg.content._ == "messagePhoto" then
+MsgType = 'Photo'
+end
+if redis:get(my..'Monshi') then
+function Check(CerNer,Company)
+if Company.status._ == "userStatusOnline" then
+redis:del(my..'MonshiStatus') 
+local time = os.date("%H : %M")
+redis:set(my..'Onlined:',time)
+end
+end
+tdbot.getUser(my,Check)
+end
+if redis:get(my..'Monshi') then
+function Check(CerNer,Company)
+if Company.status._ == "userStatusOffline" then
+if not redis:get(my..'MonshiStatus') then
+redis:set(my..'MonshiStatus',true)
+local time = os.date("%H : %M")
+redis:set(my..'Offlined:',time)
+end                    
+end
+end
+tdbot.getUser(my,Check)
+end
+if is_supergroup(msg) then
+if is_Enemy(msg) and not is_sudo(msg) then
+tdbot.sendText(msg.chat_id,msg.id,fohsh[math.random(#fohsh)],'md')
+end
+end
+if is_sudo(msg) then
+if cerner == 'markread off'then
+if redis:get(my..'MarkRead:') then
+tdbot.send(msg.chat_id, msg.id, '*Mark Read* `Has Been Disable`' , 'md')
+redis:del(my..'MarkRead:')
+else
+tdbot.send(msg.chat_id, msg.id, '*Mark Reed*  is _Already_  `Disable`' , 'md')
+end
+end
+if cerner == 'markread on' then
+if redis:get(my..'MarkRead:') then
+tdbot.send(msg.chat_id, msg.id, '*Mark Read*  is _Already_ `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '*Mark Read* `Has Been Enable`' , 'md')
+redis:set(my..'MarkRead:',true)
+end
+end
+if cerner == 'answer off'then
+if redis:get(my..'Answer') then
+tdbot.send(msg.chat_id, msg.id, '*Answer* `Has Been Disable`' , 'md')
+redis:del(my..'Answer')
+else
+tdbot.send(msg.chat_id, msg.id, '*Answer*  is _Already_  `Disable`' , 'md')
+end
+end
+if cerner == 'answer on' then
+if redis:get(my..'Answer') then
+tdbot.send(msg.chat_id, msg.id, '*Answer*  is _Already_ `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '*Answer* `Has Been Enable`' , 'md')
+redis:set(my..'Answer',true)
+end
+end
+if cerner == 'save' and tonumber(msg.reply_to_message_id) > 0 then
+function CerNerCompany(CerNer,Company)
+tdbot.forwardMessage(my, msg.chat_id, {[0] = Company.id}, 1)
+tdbot.send(msg.chat_id,msg.id,'The message has been saved in the cloud','md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),CerNerCompany)
+end
+if cerner == 'clerk off'then
+if redis:get(my..'Monshi') then
+tdbot.send(msg.chat_id, msg.id, '*Clerk* `Has Been Disable`' , 'md')
+redis:del(my..'Monshi')
+else
+tdbot.send(msg.chat_id, msg.id, '*Clerk*  is _Already_  `Disable`' , 'md')
+end
+end
+if cerner == 'clerk on' then
+if redis:get(my..'Monshi') then
+tdbot.send(msg.chat_id, msg.id, '*Clerk*  is _Already_ `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '*Clerk* `Has Been Enable`' , 'md')
+redis:set(my..'Monshi',true)
+end
+end
+if cerner == 'typing on'then
+if not redis:get(my..'Action:') then
+tdbot.send(msg.chat_id, msg.id, '*Typing* `Has Been Enable`' , 'md')
+redis:set(my..'Action:',true)
+else
+tdbot.send(msg.chat_id, msg.id, '*Typing*  is _Already_  `Enable`' , 'md')
+end
+end
+if cerner == 'typing off' then
+if not redis:get(my..'Action:') then
+tdbot.send(msg.chat_id, msg.id, '*Typing*  is _Already_ `Disable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '*Typing* `Has Been Disable`' , 'md')
+redis:del(my..'Action:')
+end
+end
+if cerner == 'flood lock' then
+if redis:get(my..'Flood:Pv:'..my) then
+tdbot.send(msg.chat_id, msg.id, '*Flood lock*  is _Already_  `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '*Flood lock* `Has Been Enable`' , 'md')
+redis:set(my..'Flood:Pv:'..my,true)
+end
+end
+if cerner == 'malevolent off'then
+if redis:get(my..'Malevolent') then
+tdbot.send(msg.chat_id, msg.id, '*Malevolent* `Has Been Disable`' , 'md')
+redis:del(my..'Malevolent')
+else
+tdbot.send(msg.chat_id, msg.id, '*Malevolent*  is _Already_  `Disable`' , 'md')
+end
+end--
+if cerner == 'malevolent on' then
+if redis:get(my..'Malevolent') then
+tdbot.send(msg.chat_id, msg.id, '• *Malevolent*  is _Already_ `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '• *Malevolent* `Has Been Enable`' , 'md')
+redis:set(my..'Malevolent',true)
+end
+end
+if cerner == 'echo off' then
+if redis:get(my..'Echo'..msg.chat_id) then
+tdbot.send(msg.chat_id, msg.id, '• *Echo* `Has Been Disable`' , 'md')
+redis:del(my..'Echo'..msg.chat_id)
+else
+tdbot.send(msg.chat_id, msg.id, '•  *Echo*  is _Already_  `Disable`' , 'md')
+end
+end
+if cerner == 'echo on' then
+if redis:get(my..'Echo'..msg.chat_id) then
+tdbot.send(msg.chat_id, msg.id, '• *Echo*  is _Already_ `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '• *Echo* `Has Been Enable`' , 'md')
+redis:set(my..'Echo'..msg.chat_id,true)
+end
+end
+if cerner == 'bc' and tonumber(msg.reply_to_message_id) > 0 then
+function CerNerCompany(CerNer,Company)
+local text = Company.content.text
+local list = redis:smembers(my..'AllGroup')
+for k,v in pairs(list) do
+tdbot.sendText(v, 0, text, 'md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),CerNerCompany)
+end
+if cerner == 'sessions' then
+function getActiveSessions(CerNer,Company)
+local ActiveSessions = Company.sessions
+local  ForI = #ActiveSessions
+local text = 'Sessions :\n'
+for i = 0 ,#ActiveSessions do
+SID = '\nشناسه نشست : *'..ActiveSessions[i].id..'*'
+App = '\nنام نرم افزار : *'..ActiveSessions[i].app_name
+ipmod = '\nآی پی :  '..ActiveSessions[i].ip
+Country = '\nکشور : *'..ActiveSessions[i].country..'*'
+Device = '\nسیستم عامل : *'..ActiveSessions[i].device_model..'*'
+systemv = '\nنسخه سیستم عامل : *'..ActiveSessions[i].system_version..'*'
+Platform = '\nنوع سیستم عامل : *'..ActiveSessions[i].platform..'*'
+last_online = '\nاخرین بازید در  : *'..(os.date("%X",ActiveSessions[i].last_active_date))..'*' 
+NumberSessions = ForI                                                    
+identifier = 
+text =  text..SID..App..ipmod..Country..Device..systemv..Platform..last_online
+end
+tdbot.send(msg.chat_id,msg.id, text, 'md') 
+    end
+        tdbot.getActiveSessions(getActiveSessions)
+        end
+        if cerner == 'link' then
+            function getlink(c,m)
+                print(m.invite_link)
+                if m.invite_link then
+                    text = m.invite_link
+                    tdbot.send(msg.chat_id,msg.id, text, 'md') 
+
+                else
+                    text = 'Error Not Found'
+                    tdbot.send(msg.chat_id,msg.id, text, 'md') 
+
+                end
+            end
+                tdbot.getChannelFull(msg.chat_id,getlink)
+            end
+        if cerner == 'clean banlist'  then
+            local function Clean(CerNer,Company)
+                if Company.total_count ~= 0 then
+                for k, v in pairs(Company.members) do
+               number = k
+               tdbot.RemoveFromBanList(msg.chat_id, v.user_id)
+              end
+              text= ' `The` *Banned* `users has been` *Unbanned* '
+              tdbot.send(msg.chat_id,msg.id, text, 'md') 
+
+            else
+                text= ' `The` *Banned* is Empty'
+            tdbot.send(msg.chat_id,msg.id, text, 'md') 
+            end
+        end
+            tdbot.getChannelMembers(msg.chat_id,0 ,10000000,"Banned",Clean)
+          end
+if cerner and cerner:match('^voice (.*)') then
+local text = cerner:match('^voice (.*)')
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+textc = text:gsub(' ','.')         
+local url = "http://tts.baidu.com/text2audio?lan=en&ie=UTF-8&text="..textc
+local file = DownloadFile(url,'Self-Bot.ogg')
+tdbot.sendVoice(msg.chat_id,(msg.id or msg.reply_to_message_id),file,'')
+end
+if cerner and cerner:match('^photo (.*)') then
+local text = cerner:match('^photo (.*)')
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+
+local eq = URL.escape(text)
+local w = "500"
+local h = "500"
+local txtsize = "100"
+local txtclr = "ff2e4357"
+local url = "https://assets.imgix.net/examples/clouds.jpg?blur=150&w="..w.."&h="..h.."&fit=crop&txt="..eq.."&txtsize="..txtsize.."&txtclr="..txtclr.."&txtalign=middle,center&txtfont=Futura%20Condensed%20Medium&mono=ff6598cc"
+local  file = DownloadFile(url,'./DWN/Self-bot.jpg')
+tdbot.sendPhoto(msg.chat_id, msg.id, file, "By Self-Bot")
+end
+if cerner and cerner:match('^tr ([^%s]+) (.*)') then
+    local lang,mtn = cerner:match('^tr ([^%s]+) (.*)')
+    url = https.request('https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20160119T111342Z.fd6bf13b3590838f.6ce9d8cca4672f0ed24f649c1b502789c9f4687a&format=plain&lang='..URL.escape(lang)..'&text='..URL.escape(mtn))
+    data = json:decode(url)
+    if data then
+    local text = 'Lang : '..data.lang..'\ntranslate : '..data.text[1]..''
+    tdbot.send(msg.chat_id,msg.id, text, 'md') 
+end
+end
+if cerner and cerner:match('^payping (%d+)') then
+    local num = cerner:match('^payping (%d+)')
+    function getInlineQuery(C,Co) 
+if tonumber(num) < 1000 then
+rt= "`The amount entered must be more than USD 1,000.`"
+tdbot.send(msg.chat_id, msg.id,rt, "md")
+else
+if Co.results and Co.results[0] then
+    tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+
+tdbot.sendInlineQuery(msg.chat_id, msg.reply_to_message_id, 0, 1,Co.inline_query_id,Co.results[0].id)
+else
+tdbot.send(msg.chat_id, msg.id,"`Start the @Bold robot first`", "md")
+end
+end
+end
+text = "Payment Amount "..num.." to "..SeTNamePYP..""
+mtn = "[ "..text.."](https://www.payping.ir/"..accountlink.."/"..num..")"
+print(mtn)
+tdbot.getInlineQuery(BOLD, chat_id, 0, 0, mtn,0, getInlineQuery)
+end
+if cerner and cerner:match('^endsession (%d+)') then
+local SessionsID = cerner:match('^endsession (%d+)')
+function endsession(cerner,company) 
+if company.code == 406 then
+
+    tdbot.send(msg.chat_id, msg.id,"For security reasons, you can't terminate older sessions from a device that you've just connected. Please use an earlier connection or wait for a few hours.",  'md' )
+
+else
+    local text = 'Terminates session '..SessionsID..' of logged in user.'
+tdbot.send(msg.chat_id,msg.id, text, 'md') 
+end
+end
+tdbot.terminateSession(SessionsID,endsession)
+end
+if cerner == 'setpinchat' then
+tdbot.setPinchat(msg.chat_id)
+tdbot.send(msg.chat_id,msg.id, 'chat has pinned to top', 'md') 
+end
+if cerner == 'stats' then
+    local allmsgs =  redis:get(my..'allmsgs') or 0
+    local supergroup = redis:scard(my..'SuperGroup') or 0
+    local Groups = redis:scard(my..'Groups') or 0
+    local Users = redis:scard(my..'Users') or 0
+    local user = io.popen("whoami"):read('*a') or 0
+    local botmsg = redis:get(my..'Botmsg') or 0
+    text = '✵✵ `Stats for Self-Bot`\n✵ `Self-message` : *'..botmsg..'*\n✵ `Allmessage` : *'..allmsgs..'*\n✵ `SuperGroups` : *'..supergroup..'*\n✵ `Groups `: *'..Groups..'*\n✵ `Users` : *'..Users..'*\n✵ `User` :* '..user..'*\n✵✵ CerNerCompany'
+    tdbot.send(msg.chat_id,msg.id,text,'md')
+  end
+if cerner == 'delpinchat' then
+    tdbot.delPinchat(msg.chat_id)
+    tdbot.send(msg.chat_id,msg.id, 'chat has been unpinned to top', 'md') 
+    end
+if cerner == 'blocklist' then
+    function getblocklist(CerNer,Company)
+        local text = 'BlockList \n'
+        local list = Company.user_ids
+        local totalblocklist = Company.total_count
+        for k,v in pairs(list) do
+            text = text..k.." - `"..v.."`\n" 
+            end
+            if #list == 0  then
+                text = 'Empty'
+            end
+            tdbot.send(msg.chat_id,msg.id, text, 'md') 
+        end
+        tdbot.getBlockedUsers(0, 100,getblocklist)
+    end
+
+if cerner == 'panel' then
+local text = '`Settings For SelfBot`'
+if redis:get(my..'Action:') then
+Typing = 'Enable'
+else
+Typing = 'Disable'
+end
+if redis:get(my..'MessageClerk') == 'text' then
+clerk = redis:get(my..'MessageClerk')
+clerktype = 'text'
+elseif redis:get(my..'MessageClerk') == 'voice' then
+clerktype = 'voice' 
+clerk = 'This is Voice'
+elseif redis:get(my..'MessageClerk') == 'videoNote' then
+clerktype = 'video Messages'
+clerk = 'This is videoNote'
+else
+clerk = 'مشترک مورد نظر در دسترس نمیباشد'
+clerktype = 'text'
+end
+if redis:get(my..'TextType:') == 'Mention' then
+    texttype = 'Mention'
+    elseif redis:get(my..'TextType:') == 'Bold' then
+    texttype = 'Bold' 
+    elseif redis:get(my..'TextType:') == 'Code' then
+    texttype = 'Code'
+    elseif redis:get(my..'TextType:') == 'Italic' then
+    texttype = 'Italic'
+    else
+    texttype = 'None'
+    end
+if redis:get(my..'MarkReed:') then
+Mark = 'Enable'
+else
+Mark = 'Disable'
+end
+if redis:get(my..'Echo'..msg.chat_id) then
+Echo = 'Enable'
+else
+Echo = 'Disable'
+end
+if redis:get(my..'pIN:h:'..msg.chat_id) then
+    lockpin = 'enable'
+else
+    lockpin = 'disable'
+end
+if redis:get(my..'Monshi') then
+Clerk = 'Enable'
+else
+Clerk = 'Disable'
+end
+if redis:get(my..'Answer') then
+Answer = 'Enable'
+else
+Answer = 'Disable'
+end
+if redis:get(my..'numberfucking') then
+numberfucking = 'true'
+else
+numberfucking = 'false'
+end
+if redis:get(my..':CHCHCHCH:') then
+voicefucking =  'true'
+else
+voicefucking = 'false'
+end
+if redis:get(my..'Flood:Pv:'..my) then
+flood = 'Enable'
+else
+flood = 'disable'
+end
+if redis:get(my..'Malevolent') then
+Malevolent = 'Enable'
+else
+Malevolent = 'Disable'
+end
+local totalredis = io.popen("du -h /var/lib/redis/dump.rdb"):read("*a")
+sizered= string.gsub(totalredis, "/var/lib/redis/dump.rdb","")
+local totalbot = io.popen("du -h ./bot/bot.cerner"):read("*a")
+SourceSize = string.gsub(totalbot, "./bot/bot.cerner","")
+local timeoff = redis:get(my..'Offlined:') or 'نامعلوم'
+local timeon = redis:get(my..'Onlined:') or 'نامعلوم'
+text = text..'\n✵ `Typing` : '..Typing..'\n✵ `Markread` : '..Mark..'\n✵ `Text formating` : '..texttype..'\n✵ `Pin `: '..lockpin..'\n✵ `Malevolent` : '..Malevolent..'\n✵ `Answer` : '..Answer..'\n✵ `Echo :` '..Echo..'\n✵ `Clerk` : '..Clerk..'\n✵ `Clerk Message` : '..clerk..'\n✵ `Type `: '..clerktype..'\n[⏸ `Onlined `: '..timeon..' ]\n[▶️ `Offlined `: '..timeoff..' ]\n✵✵ *Personal security* = {\n✵ `Flood` : '..flood..'\n✵ `Flood max `: '..flood_MAX..'\n✵ `Time Check` : '..TIME_CHECK..'\n}\n✵✵ *Fucking panel* = {\n✵ `Numbers `: '..numberfucking..'}\n✵ _Redis Size _: '..sizered..'\n✵ _Source Size_ : '..SourceSize..'\n@BashLinux\n@CerNerCompany\nReturn Version 18.04'
+tdbot.send(msg.chat_id,msg.id,text,'md')
+end
+
+if cerner == 'mydel' then
+tdbot.deleteMessagesFromUser(msg.chat_id, msg.sender_user_id) 
+end
+if cerner == 'numberfucking on' then
+if redis:get(my..'numberfucking') then
+tdbot.send(msg.chat_id, msg.id, '• *numbers fucking*  is _Already_ `Enable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '• *numbers fucking* `Has Been Enable`' , 'md')
+redis:set(my..'numberfucking',true)
+end
+end
+if cerner == 'numberfucking off' then
+if not redis:get(my..'numberfucking') then
+tdbot.send(msg.chat_id, msg.id, '• *numbers fucking*  is _Already_ `Disable`' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '• *numbers fucking* `Has Been Disable`' , 'md')
+redis:del(my..'numberfucking')
+end
+end
+if cerner == 'echo off'then
+if redis:get(my..'Echo'..msg.chat_id) then
+tdbot.send(msg.chat_id, msg.id, '• *Echo* `Has Been Disable`' , 'md')
+redis:del(my..'Echo'..msg.chat_id)
+else
+tdbot.send(msg.chat_id, msg.id, '•  *Echo*  is _Already_  `Disable`' , 'md')
+end
+end
+if cerner == 'setendmessagenumber' and tonumber(msg.reply_to_message_id) > 0 then
+function CerNerCompany(CerNer,Company)
+if msg.content._== "messageText" then
+redis:set(my..':endmessage:',Company.content.text)
+tdbot.send(msg.chat_id, msg.id, 'Done Saved !' , 'md')
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),CerNerCompany)
+end
+if cerner == 'texttype mention' then
+redis:set(my..'TextType:','Mention')
+tdbot.send(msg.chat_id, msg.id, 'Text Type Has Been seted to `Mention`' , 'md')
+elseif cerner == 'texttype bold' then
+redis:set(my..'TextType:','Bold')
+tdbot.send(msg.chat_id, msg.id, 'Text Type Has Been seted to `Bold`' , 'md')
+elseif cerner == 'texttype code' then
+    tdbot.send(msg.chat_id, msg.id, 'Text Type Has Been seted to `Code`' , 'md')
+    redis:set(my..'TextType:','Code')
+elseif cerner == 'texttype italic' then
+    tdbot.send(msg.chat_id, msg.id, 'Text Type Has Been seted to `Italic`' , 'md')
+    redis:set(my..'TextType:','Italic')
+elseif cerner == 'texttype none' then
+    tdbot.send(msg.chat_id, msg.id, 'Text Type Has Been seted to `None`' , 'md')
+    redis:del(my..'TextType:')
+end
+
+if cerner == "clean deleted" then
+    function list(CerNer,Company)
+    for k,v in pairs(Company.members) do
+    local function Checkdeleted(CerNer,Company)
+    if Company.type._ == "userTypeDeleted" then
+    tdbot.KickUser(msg.chat_id,Company.id)
+    end
+    end
+    tdbot.getUser(v.user_id,Checkdeleted)
+    print(v.user_id)
+    end
+    tdbot.send(msg.chat_id, msg.id,'All users of the account of the account have been deleted from the group' ,'md')
+    end
+    tdbot_function ({_= "getChannelMembers",channel_id = tdbot.getChatId(msg.chat_id).id,offset = 0,limit= 1000}, list, nil)
+    end
+
+if cerner == 'setvoicecheche' and tonumber(msg.reply_to_message_id) > 0 then
+function CerNerCompany(CerNer,Company)
+if Company.content._ == 'messageVoice' then
+redis:sadd(my..':CHCHCHCH:',Company.content.voice.voice.persistent_id)
+tdbot.send(msg.chat_id,msg.id,'Done file saved!','md')
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),CerNerCompany)
+end
+if cerner == 'voicelist' then
+local  voicelist = redis:smembers(my..':CHCHCHCH:')
+local t = 'Voice list: \n'
+for k,v in pairs(voicelist) do
+t = t..k.." - `"..v.."`\n" 
+end
+if #voicelist == 0 then
+t = 'Empty'
+end
+tdbot.send(msg.chat_id, msg.id,t, 'md')
+end
+if cerner == 'cleanvoicelist' then
+ redis:del(my..':CHCHCHCH:')
+tdbot.send(msg.chat_id, msg.id,'done', 'md')
+end
+if cerner and cerner:match('^چچ(.*)') then
+local list = redis:smembers(my..':CHCHCHCH:')
+for k,v in pairs(list) do
+tdbot.sendVoice(msg.chat_id,(msg.id or msg.reply_to_message_id),v,'')
+end
+end
+if cerner and cerner:match('^1 to 10') and redis:get(my..'numberfucking') then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+tdbot.sendText(msg.chat_id,0,'1','md')
+tdbot.sendText(msg.chat_id,0,'2','md')
+tdbot.sendText(msg.chat_id,0,'3','md')
+tdbot.sendText(msg.chat_id,0,'4','md')
+tdbot.sendText(msg.chat_id,0,'5','md')
+tdbot.sendText(msg.chat_id,0,'6','md')
+tdbot.sendText(msg.chat_id,0,'7','md')
+tdbot.sendText(msg.chat_id,0,'8','md')
+tdbot.sendText(msg.chat_id,0,'9','md')
+tdbot.sendText(msg.chat_id,0,'10','md')
+tdbot.sendText(msg.chat_id,0,(redis:get(my..':endmessage:') or '#Amir_CerNer_fuck_you'),'html')
+end
+if cerner == 'setclerkmessage' and tonumber(msg.reply_to_message_id) > 0 then
+function CerNerCompany(CerNer,Company)
+if Company.content._ == 'messageVoice' then
+redis:set(my..'MessageClerk','voice')
+redis:set(my.."VOICE:MessageClerk",Company.content.voice.voice.persistent_id)
+tdbot.send(msg.chat_id,msg.id,'Done ! \nClerk Message Has been saved !\nMessage Voice','md')
+elseif Company.content._== "messageText" then
+redis:set(my..'MessageClerk','text')
+redis:set(my..'TEXT:MessageClerk',Company.content.text)
+tdbot.send(msg.chat_id,msg.id,'Done ! \nClerk Message Has been saved !\nMessage Text','md')
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),CerNerCompany)
+end
+if cerner and cerner:match('^setflood (%d+)') then
+local num = cerner:match('^setflood (%d+)')
+if tonumber(num) < 2 then
+tdbot.send(msg.chat_id, msg.id," Select a number *Greater* than `2` !", "md")
+else
+redis:set(my..'Flood:Max:'..my,num)
+tdbot.send(msg.chat_id, msg.id, "Flood *Sensitivity* Change to `" ..num.. "` !", "md")
+end
+end
+if cerner and cerner:match('^setfloodtime (%d+)') then
+local num = cerner:match('^setfloodtime (%d+)')
+if tonumber(num) < 2 then
+tdbot.send(msg.chat_id, msg.id," Select a number *Greater* than `2` !", "md")
+else
+redis:set(my..'Flood:Time:'..my,num)
+tdbot.send(msg.chat_id, msg.id, "Flood Time *Sensitivity* Change to `" ..num.. "` !", "md")
+end
+end
+ if cerner == 'fwd' and tonumber(msg.reply_to_message_id) > 0 then
+function CerNerCompany(CerNer,Company)
+local list = redis:smembers(my..'AllGroup')
+for k,v in pairs(list) do
+tdbot.forwardMessage(v, msg.chat_id, {[0] = Company.id}, 1)
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),CerNerCompany)
+end
+if cerner and cerner:match('^gifset (.*)') and tonumber(msg.reply_to_message_id) > 0 then
+local cmd = cerner:match('^gifset (.*)')
+function Tonote(CerNer,Company)
+if Company.content._ == 'messageAnimation' then
+local gif = Company.content.animation.animation.persistent_id
+redis:set(my..'Gifs:'..cmd,gif)
+redis:sadd(my..'GifsCloud:',cmd)
+tdbot.send(msg.chat_id,msg.id,'Done\nGif : '..cmd..' Has been Saved','md')
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),Tonote)
+end
+if cerner and cerner:match('^newchatsuper (.*)') then
+local name = cerner:match('^newchatsuper (.*)')
+tdbot.createNewChannelChat('CerNerCompany-'..name, true, 'CerNerCompany')
+tdbot.send(msg.chat_id,msg.id,'Chat Super '..name..' Has Been Created','md')
+end
+if cerner and cerner:match('^newchat (.*)') then
+    local name = cerner:match('^newchat (.*)')
+    tdbot.createNewGroupChat({[0] =511613177},name..'-CerNerCompany')
+    tdbot.send(msg.chat_id,msg.id,'Chat Realm '..name..' Has Been Created','md')
+    end
+if cerner == 'tosuper' then
+function Checkgp(CerNer,Company)
+if Company.is_supergroup  then
+txt = 'Only group chats can be converted to supergroup'
+else
+txt='Group Has Been Upgraded to superGroup'
+tdbot.migrateGroupChatToChannelChat(msg.chat_id)
+end
+tdbot.send(msg.chat_id,msg.id,txt,'md')
+end
+tdbot.getChannel(msg.chat_id, Checkgp)
+end
+if cerner and cerner:match('^gifdel (.*)')  then
+local gif = cerner:match('^gifdel (.*)')
+redis:del(my..'Gifs:'..gif)
+redis:srem(my..'GifsCloud:',gif)
+tdbot.send(msg.chat_id,msg.id,'Done\nGif : '..gif..' Has been Deleted !','md')
+end
+if cerner == 'gifs' then
+local GifsCloud = redis:smembers(my..'GifsCloud:')
+local t = 'gifs: \n'
+for k,v in pairs(GifsCloud) do
+t = t..k.." - `"..v.."`\n" 
+end
+if #GifsCloud == 0 then
+t = 'Empty'
+end
+tdbot.send(msg.chat_id, msg.id,t, 'md')
+end
+
+if cernerw and redis:get(my.."Gifs:"..cernerw) then
+local  s = redis:get(my.."Gifs:"..cernerw)
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+tdbot.sendGif(msg.chat_id, msg.reply_to_message_id or msg.id,s,'')
+end
+
+if cerner and cerner:match('^save (.*)') and tonumber(msg.reply_to_message_id) > 0 then
+local get = cerner:match('^save (.*)')
+function Save(CerNer,Company)
+if Company.content._ == 'messageDocument' then
+redis:set(my.."DOC:"..get,Company.content.document.document.persistent_id)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Document')
+redis:set(my.."FileSize:"..get,Company.content.document.document.size)
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Document','md')
+elseif Company.content._ == 'messagePhoto' then
+redis:set(my.."PHOTO:"..get,Company.content.photo.sizes[0].photo.persistent_id)
+redis:set(my.."FileSize:"..get,Company.content.photo.sizes[0].photo.size)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Photo')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Photo','md')
+elseif Company.content._ == 'messageAnimation' then
+local gif = Company.content.animation.animation.persistent_id
+redis:set(my..'GIFS:'..get,gif)
+redis:set(my.."FileSize:"..get,Company.content.animation.animation.size)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Gif')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Gif','md')
+elseif Company.content._ == 'messageVideo' then
+redis:set(my.."VIDEO:"..get,Company.content.video.video.persistent_id)
+redis:set(my.."FileSize:"..get,Company.content.video.video.size)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Video')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Video','md')
+elseif Company.content._ == 'messageAudio' then
+redis:set(my.."AUDIO:"..get,Company.content.audio.audio.persistent_id)
+redis:set(my.."FileSize:"..get,Company.content.audio.audio.size)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Audio')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Audio','md')
+elseif Company.content._ == 'messageVoice' then
+redis:set(my.."VOICE:"..get,Company.content.voice.voice.persistent_id)
+redis:set(my.."FileSize:"..get,Company.content.voice.voice.size)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Voice')
+tdbot.send(msg.chat_id,msg.id,'Done\nFor Get : '..get,'md')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Voice','md')
+elseif Company.content._ == 'messageVideoNote' then
+redis:set(my.."VIDEONOTE:"..get,Company.content.video_note.video.persistent_id)
+redis:set(my.."FileSize:"..get,Company.content.video_note.video.size)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'VideoNote')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : VideoNote','md')
+elseif Company.content._ == 'messageContact' then
+redis:set(my.."Contact:"..get,Company.content.contact.phone_number)
+redis:sadd(my.."Files:",get)
+redis:set(my..'filetype:'..get,'Contact')
+tdbot.send(msg.chat_id,msg.id,'Done! File saved !\nFor getfile  : get '..get..'\nTypeFile : Contact','md')
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),Save)
+end
+if cernerw and cernerw:match('^linkinfo (http://%S+)') or cernerw and cernerw:match('^linkinfo (https://%S+)') then
+cernertwo = cernerw:match('^linkinfo (http://%S+)') or cernerw:match('^linkinfo (https://%S+)')
+url = cernertwo
+print 'done'
+amir = io.popen('wget -S --spider --no-check-certificate "'..url..'" 2>&1')
+amirqq = amir:read"*a":match"(.*)"
+typer0 = string.gsub(amirqq, ".*Content%-Type: ", "")
+FileType = string.gsub(typer0, "Conten.*", "")
+Size0 = string.gsub(amirqq, ".*Content%-Length: ", "")
+Size1 = string.gsub(Size0, "Last.*", "")
+TimeUploadInsite0 = string.gsub(amirqq, ".*Last%-Modified: ", "")
+TimeUploadInsite = string.gsub(TimeUploadInsite0, "Connection.*", "")
+SerVer0 = string.gsub(amirqq, "(.*)Server: ", "")
+SerVer = string.gsub(SerVer0, "Accept%-Ranges(.*)", "")
+
+--TimeUploadInsite = 0
+--tr = get_resource_size(cernertwo)
+SizeOFFile = nicesize(tonumber(Size1))
+text = '✵✵*Link-Info*\n`✵ URL `: '..cernertwo..'\n✵`File Type `: '..FileType..'\n✵`Time of Upload in site `: '..TimeUploadInsite..'\n✵`Size Of File `: *'..SizeOFFile..'*\n\n✵`Host URL `: '..SerVer..'\n@CerNerCompany'
+tdbot.send(msg.chat_id,msg.id,text,'md')
+end
+if cerner == 'files' then
+local files = redis:smembers(my..'Files:')
+local ww = io.popen('cd DWN && ls'):read("*all") or 'Empty'
+local t = 'Files: in Dwn folder : \n'..ww..'\nFiles: in Database : \n'
+for k,v in pairs(files) do
+local sixe = redis:get(my.."FileSize:"..v) or ''
+sive = nicesize(tonumber(sixe))
+local type = redis:get(my..'filetype:'..v) or 'UnSupported'
+t = t..k.." - *"..v.."*  Type > `"..type.."` *"..sive.."*\n" 
+end
+if #files == 0 then
+t = 'Empty'
+end
+tdbot.send(msg.chat_id, msg.id,t, 'md')
+end
+if cerner == 'clean files' then
+local files = redis:smembers(my..'Files:')
+local t = 'Done \n'
+for k,v in pairs(files) do
+t = t..#files.." Files deleted\n" 
+redis:srem(my..'Files:',v)
+redis:del(my.."FileSize:"..v)
+redis:del(my..'filetype:'..v)
+end
+if #files == 0 then
+t = 'Empty'
+end
+tdbot.send(msg.chat_id, msg.id,t, 'md')
+end
+if cerner and cerner:match('^stickerset (.*)') and tonumber(msg.reply_to_message_id) > 0 then
+local cmd = cerner:match('^stickerset (.*)')
+function Saved(CerNer,Company)
+if Company.content._ == 'messageSticker' then
+redis:set(my..'STICKERS:'..cmd,Company.content.sticker.sticker.persistent_id)
+redis:sadd(my..'StickersCloud:',cmd)
+tdbot.send(msg.chat_id,msg.id,'Done\nSticker : '..cmd..' Has been Saved','md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),Saved)
+end
+if cerner == 'stickers' then
+local StickersCloud = redis:smembers(my..'StickersCloud:')
+local t = 'Stickers: \n'
+for k,v in pairs(StickersCloud) do
+t = t..k.." - `"..v.."`\n" 
+end
+if #StickersCloud == 0 then
+t = 'Empty'
+end
+tdbot.send(msg.chat_id, msg.id,t, 'md')
+end
+if cerner and cerner:match('^stickerdel (.*)')  then
+local sticker = cerner:match('^stickerdel (.*)')
+redis:del(my..'STICKERS:'..sticker)
+redis:srem(my..'StickersCloud:',sticker)
+tdbot.send(msg.chat_id,msg.id,'Done\nSticker : '..sticker..' Has been Deleted !','md')
+end
+if cernerw and redis:get(my.."STICKERS:"..cernerw) then
+local  s = redis:get(my.."STICKERS:"..cernerw)
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+tdbot.sendSticker(msg.chat_id, msg.reply_to_message_id or msg.id ,s)
+end
+if cerner and cerner:match('^get (.*)') then
+local get = cerner:match('^get (.*)')
+if redis:get(my.."DOC:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."DOC:"..get)
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendDocument(chat_id,0,file,'File name : '..get..'\nFile Size : '..Size..' KB')
+elseif redis:get(my.."GIFS:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."GIFS:"..get)
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendGif(msg.chat_id, msg.reply_to_message_id or msg.id,file,'File name : '..get..'\nFile Size : '..Size..' KB')
+elseif redis:get(my.."VIDEONOTE:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."VIDEONOTE:"..get)
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendVideoNote(msg.chat_id,0,file)
+elseif redis:get(my.."Contact:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."Contact:"..get)
+tdbot.sendContact(msg.chat_id,0,file,get,'#Company', 0)
+elseif redis:get(my.."VOICE:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."VOICE:"..get)
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendVoice(msg.chat_id,0, file,'File name : '..get..'\nFile Size : '..Size..' KB')
+elseif redis:get(my.."AUDIO:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."AUDIO:"..get)
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendAudio(msg.chat_id,0,file,'Self-Files.','File name : '..get..'\nFile Size : '..Size..' KB')
+elseif redis:get(my.."PHOTO:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."PHOTO:"..get) 
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendPhoto(msg.chat_id,0,file,'File name : '..get..'\nFile Size : '..Size..' KB')
+elseif redis:get(my.."VIDEO:"..get) then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local file = redis:get(my.."VIDEO:"..get)
+local Size = redis:get(my.."FileSize:"..get)
+tdbot.sendVideo(msg.chat_id,0,file,'File name : '..get..'\nFile Size : '..Size..' KB')
+-----------------------------------------------------------------------------------------------------------------------
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+local url = nil
+if cerner == "boobs" then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+url = getRandomBoobs()
+url = getRandomButts()
+if url ~= nil then
+local url = DownloadFile(url,'DWN/boobs.png')
+print(url)
+tdbot.sendPhoto(msg.chat_id,0,url,'')
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+if cernerw and cernerw:match('^dlmp3 (http://%S+).[mp3]') or cernerw and cernerw:match('^dlmp3 (https://%S+).[mp3]') then
+if cernerw:match('^dlmp3 http://%S+.mp3') or cernerw:match('^dlmp3 https://%S+.mp3') then
+--print 'Dowload Mp3 File' 
+local ul = cernerw:match('^dlmp3 (.+)') 
+tdbot.send(msg.chat_id,msg.id,'Downloading.....!','md')
+local url = download(ul,'/1366.mp3')
+tdbot.sendAudio(msg.chat_id,0,url,'Self Downloader','')
+else
+tdbot.send(msg.chat_id,msg.id,'Error 404! \nThis is not a mp3 . !','md')
+end
+end
+if cernerw and cernerw:match('^dlmp4 (http://%S+).[mp4]') or cernerw and cernerw:match('^dlmp4 (https://%S+).[mp4]') then
+if cernerw and cernerw:match('^dlmp4 http://%S+.mp4') or cernerw and cernerw:match('^dlmp4 https://%S+.mp4') then
+tdbot.send(msg.chat_id,msg.id,'Downloading.....!','md')
+--print 'Dowload Mp4 File' 
+local ul = cernerw:match('^dlmp4 (.+)') 
+local url = download(ul,'/1364.mp4')
+tdbot.sendVideo(msg.chat_id,0,url,'Self Downloader')
+else
+tdbot.send(msg.chat_id,msg.id,'Error 404! \nThis is not a mp4 . !','md')
+end
+end
+if cernerw and cernerw:match('^dlmkv (http://%S+).[mkv]') or cernerw and cernerw:match('^dlmkv (https://%S+).[mkv]') then
+if cernerw and cernerw:match('^dlmkv http://%S+.mkv') or cernerw and cernerw:match('^dlmkv https://%S+.mkv') then
+tdbot.send(msg.chat_id,msg.id,'Downloading.....!','md')
+--print 'Dowload mkv File' 
+local ul = cernerw:match('^dlmkv (.+)') 
+local url = download(ul,'/13689.mkv')
+tdbot.send(msg.chat_id,msg.id,'Downloaded. !','md')
+tdbot.send(msg.chat_id,msg.id,'Uploading.....!','md')
+tdbot.sendVideo(msg.chat_id,0,url,'Self Downloader')
+else
+tdbot.send(msg.chat_id,msg.id,'Error 404! \nThis is not a mkv . !','md')
+end
+end
+if cernerw and cernerw:match('^dlapk (http://%S+).[apk]') or cernerw and cernerw:match('^dlapk (https://%S+).[apk]') then
+if cernerw and cernerw:match('^dlapk http://%S+.apk') or cernerw and cernerw:match('^dlapk https://%S+.apk') then
+tdbot.send(msg.chat_id,msg.id,'Downloading.....!','md')
+--print 'Dowload apk File' 
+local ul = cernerw:match('^dlapk (.+)') 
+local url = download(ul,'/1378.apk')
+tdbot.sendDocument(chat_id,0,url,'Self Downloader')
+else
+tdbot.send(msg.chat_id,msg.id,'Error 404! \nThis is not a apk . !','md')
+end
+end
+if cernerw and cernerw:match('^dlexe (http://%S+).[exe]') or cernerw and cernerw:match('^dlexe (https://%S+).[exe]') then
+if cernerw and cernerw:match('^dlexe http://%S+.exe') or cernerw and cernerw:match('^dlexe https://%S+.exe') then
+tdbot.send(msg.chat_id,msg.id,'Downloading.....!','md')
+--print 'Dowload apk File' 
+local ul = cernerw:match('^dlexe (.+)') 
+local url = download(ul,'/1378.exe')
+tdbot.sendDocument(chat_id,0,url,'Self Downloader')
+else
+tdbot.send(msg.chat_id,msg.id,'Error 404! \nThis is not a exe . !','md')
+end
+end
+if cerner and cerner:match('^web (https?://)') then
+local web = cerner:match('^web (.+).mp3')
+--print(web)
+function Webpage(CerNer,Company)
+if Company.photo then
+    print('tttt'..Company.photo.sizes[0].photo.persistent_id)
+tdbot.sendPhoto(msg.chat_id, msg.id, Company.photo.sizes[0].photo.persistent_id,'')
+tdbot.send(msg.chat_id, msg.id,'Description : '..(Company.description or 'nil')..'\nSite Name : '..(Company.site_name or 'nil')..'\nTitle : '..(Company.title or 'nil'),'md')
+else
+tdbot.send(msg.chat_id, msg.id,'Description : '..(Company.description or 'nil')..'\nSite Name : '..(Company.site_name or 'nil')..'\nTitle : '..(Company.title or 'nil'),'md')
+end
+end
+tdbot.GetWeb(web,Webpage)
+end
+if cerner and cerner:match('^calc (.*)') then
+local calca = cerner:match('^calc (.*)')
+Calculate(msg,calca)
+end
+if cerner == 'backup' then
+tdbot.sendDocument(my,0,'./bot/bot.cerner','Bot.cerner')
+tdbot.sendDocument(my,0,'./bot/utils.cerner','utils.cerner')
+tdbot.sendDocument(my,0,'./bot/function.cerner','function.cerner')
+tdbot.sendDocument(my,0,'/var/lib/redis/dump.rdb','redis.rdb')
+tdbot.send(msg.chat_id,msg.id,'Sented!','md')
+end
+if cerner and cerner:match('^delfile (.*)') then
+local get = cerner:match('^delfile (.*)')
+if redis:get(my.."DOC:"..get) then
+redis:del(my.."DOC:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."GIFS:"..get) then
+redis:del(my.."GIFS:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."VIDEONOTE:"..get) then
+redis:del(my.."VIDEONOTE:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."Contact:"..get) then
+redis:del(my.."Contact:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."VOICE:"..get) then
+redis:del(my.."VOICE:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."AUDIO:"..get) then
+redis:del(my.."AUDIO:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."PHOTO:"..get) then
+redis:del(my.."PHOTO:"..get) 
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+elseif redis:get(my.."VIDEO:"..get) then
+redis:del(my.."VIDEO:"..get)
+redis:srem(my.."Files:",get)
+redis:del(my..'filetype:'..get)
+redis:del(my.."FileSize:"..get)
+tdbot.send(msg.chat_id,msg.id,'Done\nFile  : '..get..' Has been Deleted !','md')
+-----------------------------------------------------------------------------------------------------------------------
+else
+tdbot.send(msg.chat_id,msg.id,'Error not found !','md')
+end
+end
+ if cerner == 'delall' and tonumber(msg.reply_to_message_id) > 0  then
+function DelallByReply(CerNer,Company)
+tdbot.deleteMessagesFromUser(msg.chat_id, Company.sender_user_id) 
+tdbot.send(msg.chat_id, msg.id,  '`All messages user :` *'..Company.sender_user_id..'* Has Been *Deleted* ', 'md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),DelallByReply)
+end
+if cerner == 'reload' then
+for k,v in pairs(reloading) do
+tdbot.send(msg.chat_id,msg.id,v,'md')
+end
+dofile('./bot/bot.cerner')
+dofile('./bot/utils.cerner')
+dofile('./bot/function.cerner')
+end
+if cerner == 'dump' then 
+function VarDump(CerNer,Company)
+local TeXT = serpent.block(Company, {comment=false})
+text= string.gsub(TeXT, "\n","\n\r\n")
+tdbot.send(msg.chat_id, msg.id, text,'html')
+ end
+if tonumber(msg.reply_to_message_id) == 0 then
+else
+tdbot.getMessage(msg.chat_id, 
+tonumber(msg.reply_to_message_id),VarDump)
+end
+end
+
+if cerner == 'inv' and tonumber(msg.reply_to_message_id) > 0 then
+function InviteByReply(CerNer,Company)
+tdbot.addChatMembers(msg.chat_id,Company.sender_user_id)
+tdbot.send(msg.chat_id, msg.id,  '`User :` *'..Company.sender_user_id..'* Has Been *Add* to Group', 'md')
+end
+tdbot.getMessage(msg.chat_id,tonumber(msg.reply_to_message_id),InviteByReply)
+end
+if cerner and cerner:match('^inv (%d+)') then
+local ID = cerner:match('^inv (%d+)')
+tdbot.addChatMembers(msg.chat_id,ID)
+tdbot.send(msg.chat_id, msg.id,  '`User :` *'..ID..'* Has Been *Add* to Group', 'md')
+end
+if cerner == 'call' and tonumber(msg.reply_to_message_id) > 0 then
+function InviteByReply(CerNer,Company)
+tdbot.createCall(Company.sender_user_id)
+tdbot.send(msg.chat_id, msg.id,  'Call is ongoing!', 'md')
+end
+tdbot.getMessage(msg.chat_id,tonumber(msg.reply_to_message_id),InviteByReply)
+end
+if cerner and cerner:match('^call @(.*)') then
+local username = cerner:match('^call @(.*)')
+function CreateCallByUsername(CerNer,Company)
+if Company.id then
+text = 'Call is ongoing!'
+tdbot.createCall(Company.id)
+else 
+text = 'User Not Found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'html')
+end
+tdbot.ResolveUsername(username,CreateCallByUsername)
+end 
+
+function exi_file(path, suffix)
+    local files = {}
+    local pth = tostring(path)
+  local psv = tostring(suffix)
+    for k, v in pairs(scandir(pth)) do
+        if (v:match('.'..psv..'$')) then
+            table.insert(files, v)
+        end
+    end
+    return files
+  end
+  function geting_file(name, path, suffix)
+  local fname = tostring(name)
+  local pth = tostring(path)
+  local psv = tostring(suffix)
+  for k,v in pairs(exi_file(pth, psv)) do
+  if fname == v then
+  return true
+  end
+  end
+  return false
+  end
+  
+if cerner and cerner:match('^call (%d+)') then
+local ID = cerner:match('^call (%d+)')
+tdbot.createCall(ID)
+tdbot.send(msg.chat_id, msg.id,  'Call is ongoing!', 'md')
+end
+if cerner and cerner:match('^addtoall (%d+)') then
+local ID = cerner:match('^addtoall (%d+)')
+local list = redis:smembers(my..'AllGroup')
+for k,v in pairs(list) do
+tdbot.addChatMember(v, ID,5)
+end
+tdbot.send(msg.chat_id, msg.id,  'done !', 'md')
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^call (.*)')then
+local ID = cerner:match('^call (.*)')
+id = msg.content.entities[0].type.user_id
+tdbot.createCall(id)
+tdbot.send(msg.chat_id, msg.id,  'Call is ongoing!', 'md')
+end
+if cerner and cerner:match('^call (%d+)$')  then
+local getid = cerner:match('^call (%d+)$')
+function CreateCall(cerner,company) 
+if result.can_be_called then
+tdbot.createCall(getid)
+tdbot.send(msg.chat_id, msg.id,"Call is ongoing!",  'md' )
+else
+tdbot.send(msg.chat_id, msg.id,"Error 403",  'md' )
+end
+end
+tdbot.getUserFull(getid,CreateCall)
+end
+if cerner and cerner:match('^inv @(.*)') then
+local username = cerner:match('^inv @(.*)')
+function InviteByUsername(CerNer,Company)
+if Company.id then
+text = 'User '..username.. '  Has Been *Add* to Group'
+tdbot.addChatMembers(msg.chat_id,Company.id)
+else 
+text = 'User Not Found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'html')
+end
+tdbot.ResolveUsername(username,InviteByUsername)
+end 
+if cerner and cerner:match('^fonten (.*)') then
+    local char = cerner:match('^fonten (.*)')
+if #char < 2 then
+    rt= 'After this command, enter a word or phrase for a beautiful text by inserting a space'
+    tdbot.send(msg.chat_id, msg.id,rt,  'md' )
+    end
+    if string.len(char) > 20 then
+    tdbot.send(msg.chat_id, msg.id,'Maximum characters are 20 characters and numbers',  'md' )
+    end
+    local font_base = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,0,9,8,7,6,5,4,3,2,1,.,_"
+    local font_hash = "z,y,x,w,v,u,t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,0,1,2,3,4,5,6,7,8,9,.,_"
+    local result = {}
+    i=0
+    for k=1,#fonts_en do
+    i=i+1
+    local tar_font = fonts_en[i]:split(",")
+    local text = char
+    local text = text:gsub("A",tar_font[1])
+    local text = text:gsub("B",tar_font[2])
+    local text = text:gsub("C",tar_font[3])
+    local text = text:gsub("D",tar_font[4])
+    local text = text:gsub("E",tar_font[5])
+    local text = text:gsub("F",tar_font[6])
+    local text = text:gsub("G",tar_font[7])
+    local text = text:gsub("H",tar_font[8])
+    local text = text:gsub("I",tar_font[9])
+    local text = text:gsub("J",tar_font[10])
+    local text = text:gsub("K",tar_font[11])
+    local text = text:gsub("L",tar_font[12])
+    local text = text:gsub("M",tar_font[13])
+    local text = text:gsub("N",tar_font[14])
+    local text = text:gsub("O",tar_font[15])
+    local text = text:gsub("P",tar_font[16])
+    local text = text:gsub("Q",tar_font[17])
+    local text = text:gsub("R",tar_font[18])
+    local text = text:gsub("S",tar_font[19])
+    local text = text:gsub("T",tar_font[20])
+    local text = text:gsub("U",tar_font[21])
+    local text = text:gsub("V",tar_font[22])
+    local text = text:gsub("W",tar_font[23])
+    local text = text:gsub("X",tar_font[24])
+    local text = text:gsub("Y",tar_font[25])
+    local text = text:gsub("Z",tar_font[26])
+    local text = text:gsub("a",tar_font[27])
+    local text = text:gsub("b",tar_font[28])
+    local text = text:gsub("c",tar_font[29])
+    local text = text:gsub("d",tar_font[30])
+    local text = text:gsub("e",tar_font[31])
+    local text = text:gsub("f",tar_font[32])
+    local text = text:gsub("g",tar_font[33])
+    local text = text:gsub("h",tar_font[34])
+    local text = text:gsub("i",tar_font[35])
+    local text = text:gsub("j",tar_font[36])
+    local text = text:gsub("k",tar_font[37])
+    local text = text:gsub("l",tar_font[38])
+    local text = text:gsub("m",tar_font[39])
+    local text = text:gsub("n",tar_font[40])
+    local text = text:gsub("o",tar_font[41])
+    local text = text:gsub("p",tar_font[42])
+    local text = text:gsub("q",tar_font[43])
+    local text = text:gsub("r",tar_font[44])
+    local text = text:gsub("s",tar_font[45])
+    local text = text:gsub("t",tar_font[46])
+    local text = text:gsub("u",tar_font[47])
+    local text = text:gsub("v",tar_font[48])
+    local text = text:gsub("w",tar_font[49])
+    local text = text:gsub("x",tar_font[50])
+    local text = text:gsub("y",tar_font[51])
+    local text = text:gsub("z",tar_font[52])
+    local text = text:gsub("0",tar_font[53])
+    local text = text:gsub("9",tar_font[54])
+    local text = text:gsub("8",tar_font[55])
+    local text = text:gsub("7",tar_font[56])
+    local text = text:gsub("6",tar_font[57])
+    local text = text:gsub("5",tar_font[58])
+    local text = text:gsub("4",tar_font[59])
+    local text = text:gsub("3",tar_font[60])
+    local text = text:gsub("2",tar_font[61])
+    local text = text:gsub("1",tar_font[62])
+    table.insert(result, text)
+    end
+    local result_text = "First word: "..char.."\nDesigned by "..tostring(#fonts_en).." Font:\n\n "
+    a=0
+    for v=1,#result do
+    a=a+1
+    result_text = result_text..a.."- "..result[a].."\n\n"
+    end
+    tdbot.send(msg.chat_id, msg.id,result_text,  'md' )
+    end
+if cerner and cerner:match('^fontfa (.*)') then
+    local num = cerner:match('^fontfa (.*)')
+if #num < 2 then
+    rt= "بعد از این دستور، با قید یک فاصله کلمه یا جمله ی مورد نظر را جهت زیبا نویسی وارد کنید"
+    tdbot.send(msg.chat_id, msg.id,rt,  'md' )
+
+end
+if string.len(num) > 20 then
+    rt= "حداکثر حروف مجاز 20 کاراکتر  و عدد است"
+    tdbot.send(msg.chat_id, msg.id,rt,  'md' )
+
+end
+local font_base = "ض,ص,ق,ف,غ,ع,ه,خ,ح,ج,ش,س,ی,ب,ل,ا,ن,ت,م,چ,ظ,ط,ز,ر,د,پ,و,ک,گ,ث,ژ,ذ,آ,ئ,.,_"
+local font_hash = "ض,ص,ق,ف,غ,ع,ه,خ,ح,ج,ش,س,ی,ب,ل,ا,ن,ت,م,چ,ظ,ط,ز,ر,د,پ,و,ک,گ,ث,ژ,ذ,آ,ئ,.,_"
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local result = {}
+i=0
+for k=1,#fonts_fa do
+    i=i+1
+    local tar_font = fonts_fa[i]:split(",")
+    local text = num
+    local text = text:gsub("ض",tar_font[1])
+    local text = text:gsub("ص",tar_font[2])
+    local text = text:gsub("ق",tar_font[3])
+    local text = text:gsub("ف",tar_font[4])
+    local text = text:gsub("غ",tar_font[5])
+    local text = text:gsub("ع",tar_font[6])
+    local text = text:gsub("ه",tar_font[7])
+    local text = text:gsub("خ",tar_font[8])
+    local text = text:gsub("ح",tar_font[9])
+    local text = text:gsub("ج",tar_font[10])
+    local text = text:gsub("ش",tar_font[11])
+    local text = text:gsub("س",tar_font[12])
+    local text = text:gsub("ی",tar_font[13])
+    local text = text:gsub("ب",tar_font[14])
+    local text = text:gsub("ل",tar_font[15])
+    local text = text:gsub("ا",tar_font[16])
+    local text = text:gsub("ن",tar_font[17])
+    local text = text:gsub("ت",tar_font[18])
+    local text = text:gsub("م",tar_font[19])
+    local text = text:gsub("چ",tar_font[20])
+    local text = text:gsub("ظ",tar_font[21])
+    local text = text:gsub("ط",tar_font[22])
+    local text = text:gsub("ز",tar_font[23])
+    local text = text:gsub("ر",tar_font[24])
+    local text = text:gsub("د",tar_font[25])
+    local text = text:gsub("پ",tar_font[26])
+    local text = text:gsub("و",tar_font[27])
+    local text = text:gsub("ک",tar_font[28])
+    local text = text:gsub("گ",tar_font[29])
+    local text = text:gsub("ث",tar_font[30])
+    local text = text:gsub("ژ",tar_font[31])
+    local text = text:gsub("ذ",tar_font[32])
+    local text = text:gsub("ئ",tar_font[33])
+    local text = text:gsub("آ",tar_font[34])
+    table.insert(result, text)
+end
+local result_text = "کلمه ی اولیه: "..num.."\nطراحی با "..tostring(#fonts_fa).." فونت:\n"
+a=0
+for v=1,#result do
+    a=a+1
+    result_text = result_text..a.."- "..result[a].."\n\n"
+end
+tdbot.send(msg.chat_id, msg.id, result_text, 'md')
+
+end
+if cerner == 'kick' and tonumber(msg.reply_to_message_id) > 0  then
+function KickUserByReply(CerNer,Company)
+tdbot.KickUser(msg.chat_id,Company.sender_user_id) 
+tdbot.send(msg.chat_id, msg.id,  '*User :* `'..Company.sender_user_id..'`  Has Been *Kicked* ', 'md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),KickUserByReply)
+end
+
+if  cerner == 'saleold' then
+    tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+    io.popen('cd DWN && curl  -o CerNerCompany.webp https://irantm.tk/r/photo/ ')
+    tdbot.sendSticker(msg.chat_id, 0, './DWN/CerNerCompany.webp')
+end
+if cerner == 'leave' then
+    tdbot.send(msg.chat_id, msg.id,  '*Bye :(* ', 'md')
+    tdbot.Left(msg.chat_id, my, 'Left')
+    end
+if cerner == 'time' then
+    tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+io.popen('curl -o timeCerNerCompany.webp https://api.feelthecode.xyz/sticker/date/')
+    tdbot.sendSticker(msg.chat_id, 0, '.timeCerNerCompany.webp')
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^id (.*)')then
+local ID = cerner:match('^id (.*)')
+local function GetName(CerNer, Company)
+id = msg.content.entities[0].type.user_id
+tdbot.send(msg.chat_id, msg.id,'`'..id..'`', 'md')
+end
+tdbot.getUser(id,GetName)
+end
+---UnMute All
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^unmute (.*)')then
+local ID = cerner:match('^unmute (.*)')
+local function Restrictq(CerNer, Company)
+local Fid = msg.content.entities[0].type.user_id
+tdbot.Restrict(msg.chat_id,Fid, 'Restricted', {1,1, 1, 1, 1, 1})
+tdbot.send(msg.chat_id, msg.id,  '*User :* `'..ID..'` *can be send message and media in group* ', 'md')
+end
+tdbot.getUser(id,Restrictq)
+end
+if cerner and cerner:match('^unmute @(.*)') then
+local username = cerner:match('^unmute @(.*)')
+function RestrictByUsername(CerNer,Company)
+if Company.id then
+local ID = Company.id
+text =  '*User :* `'..ID..'` *can be send message and media in group* '
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,1, 1, 1, 1, 1})
+else 
+text = 'Error Not found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'md')
+end
+tdbot.ResolveUsername(username,RestrictByUsername)
+end 
+if cerner == 'unmute' and tonumber(msg.reply_to_message_id) > 0  then
+function KickUserByReply(CerNer,Company)
+tdbot.Restrict(msg.chat_id,Company.sender_user_id, 'Restricted', {1,1, 1, 1, 1, 1})
+tdbot.send(msg.chat_id, msg.id,  '*User :* `'..Company.sender_user_id..'` *can be send message and media in group* ', 'md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),KickUserByReply)
+end
+if cerner and cerner:match('^unmute (%d+)')then
+local ID = cerner:match('^unmute (%d+)')
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,1, 1, 1, 1, 1})
+tdbot.send(msg.chat_id, msg.id,  '*User :* `'..ID..'` *can be send message and media in group* ', 'md')
+end
+--Mute Links
+if cerner and cerner:match('^mutelinks (%d+)')then
+local ID = cerner:match('^mutelinks (%d+)')
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,0, 1, 1, 1, 0})
+tdbot.send(msg.chat_id, msg.id,  '*not user:* `'..ID..'` *may add web page preview to his messages in group* ', 'md')
+end
+if cerner == 'mutelinks' and tonumber(msg.reply_to_message_id) > 0  then
+function KickUserByReply(CerNer,Company)
+tdbot.Restrict(msg.chat_id,Company.sender_user_id, 'Restricted', {1,0, 1, 1, 1, 0})
+tdbot.send(msg.chat_id, msg.id,  '*not user:* `'..Company.sender_user_id..'` *may add web page preview to his messages in group* ', 'md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),KickUserByReply)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^mutelinks (.*)')then
+local ID = cerner:match('^mutelinks (.*)')
+local function Restrictq(CerNer, Company)
+local Fid = msg.content.entities[0].type.user_id
+tdbot.Restrict(msg.chat_id,Fid, 'Restricted', {1,0, 1, 1, 1, 0})
+tdbot.send(msg.chat_id, msg.id,  '*not user:* `'..ID..'` *may add web page preview to his messages in group* ', 'md')
+end
+tdbot.getUser(id,Restrictq)
+end
+if cerner and cerner:match('^mutelinks @(.*)') then
+local username = cerner:match('^mute links@(.*)')
+function RestrictByUsername(CerNer,Company)
+if Company.id then
+local ID = Company.id
+text =  '*Not user:* `'..ID..'` *may add web page preview to his messages in group* '
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,0, 1, 1, 1, 0})
+else 
+text = 'Error Not found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'md')
+end
+tdbot.ResolveUsername(username,RestrictByUsername)
+end 
+---Mute All
+if cerner == 'mute' and tonumber(msg.reply_to_message_id) > 0  then
+function MuteUserByReply(CerNer,Company)
+tdbot.Restrict(msg.chat_id,Company.sender_user_id, 'Restricted', {1,0, 0, 0, 0, 0})
+tdbot.send(msg.chat_id, msg.id,  '*Restrict user :* `'..Company.sender_user_id..'` *from send message in group* ', 'md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),MuteUserByReply)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^mute (.*)')then
+local ID = cerner:match('^mute (.*)')
+local function Restrictq(CerNer, Company)
+local Fid = msg.content.entities[0].type.user_id
+tdbot.Restrict(msg.chat_id,Fid, 'Restricted', {1,0, 0, 0, 0, 0})
+tdbot.send(msg.chat_id, msg.id,  '*Restrict user :* `'..ID..'` *from send messagesn in group* ', 'md')
+end
+tdbot.getUser(id,Restrictq)
+end
+if cerner and cerner:match('^mute @(.*)') then
+local username = cerner:match('^mute @(.*)')
+function RestrictByUsername(CerNer,Company)
+if Company.id then
+local ID = Company.id
+text =  '*Restrict user :* `'..ID..'` *from send message in group* '
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,0, 0, 0, 0, 0})
+else 
+text = 'Error Not found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'md')
+end
+tdbot.ResolveUsername(username,RestrictByUsername)
+end 
+if cerner and cerner:match('^mute (%d+)')then
+local ID = cerner:match('^mute (%d+)')
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,0, 0, 0, 0, 0})
+tdbot.send(msg.chat_id, msg.id,  '*Restrict user :* `'..ID..'` *from send messagesn in group* ', 'md')
+end
+----------Mute Media
+if cerner == 'mutemedia' and tonumber(msg.reply_to_message_id) > 0  then
+function KickUserByReply(CerNer,Company)
+tdbot.Restrict(msg.chat_id,Company.sender_user_id, 'Restricted', {1,1, 0, 0, 0, 1})
+tdbot.send(msg.chat_id, msg.id,  '*Restrict user :* `'..Company.sender_user_id..'` *from send media in group* ', 'md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),KickUserByReply)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^mutemedia (.*)')then
+local ID = cerner:match('^mutemedia (.*)')
+local function Restrictq(CerNer, Company)
+local Fid = msg.content.entities[0].type.user_id
+tdbot.Restrict(msg.chat_id,Fid, 'Restricted', {1,1, 0, 0, 0, 1})
+tdbot.send(msg.chat_id, msg.id,  '*Restrict user :* '..ID..' *from send media in group* ', 'md')
+end
+tdbot.getUser(id,Restrictq)
+end
+if cerner and cerner:match('^mutemedia (%d+)')then
+local ID = cerner:match('^mutemedia (%d+)')
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,1, 0, 0, 0, 1})
+tdbot.send(msg.chat_id, msg.id,  '*Restrict user :* `'..ID..'` *from send media in group* ', 'md')
+end
+if cerner and cerner:match('^mute media @(.*)') then
+local username = cerner:match('^mute media @(.*)')
+function RestrictByUsername(CerNer,Company)
+if Company.id then
+local ID = Company.id
+text =  '*Restrict user :* `'..ID..'` *from send media in group* '
+tdbot.Restrict(msg.chat_id,ID, 'Restricted', {1,1, 0, 0, 0, 1})
+else 
+text = 'Error Not found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'md')
+end
+tdbot.ResolveUsername(username,RestrictByUsername)
+end 
+----Done
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^res (.*)')then
+local ID = msg.content.entities[0].type.user_id
+local function GetName(CerNer, Company)
+function Get(extra, result, success) 
+if Company.first_name then
+CompanyName = ec_name(Company.first_name)
+else  
+CompanyName = 'nil'
+end
+if result.about then
+CompanyAbout = check_markdown(result.about)
+else  
+CompanyAbout = 'nil'
+end
+if result.common_chat_count  then
+Companycommon_chat_count  = result.common_chat_count 
+else 
+Companycommon_chat_count  = 'nil'
+end
+local text = [[
+Firstname : ]]..CompanyName..
+[[
+
+UserName : ]]..check_markdown(Company.username)..
+[[
+
+Bio : ]]..CompanyAbout..
+[[
+
+Common Chat : ]]..Companycommon_chat_count
+tdbot.send(msg.chat_id,msg.id,text,'md')
+end
+tdbot.getUserFull(ID,Get)
+end
+tdbot.getUser(ID,GetName)
+end
+if cerner and cerner:match('^res (%d+)') then
+local ID = cerner:match('^res (%d+)')
+local function GetName(CerNer, Company)
+function Get(extra, result, success) 
+if Company.first_name then
+CompanyName = ec_name(Company.first_name)
+else  
+CompanyName = 'nil'
+end
+if result.about then
+CompanyAbout = result.about
+else  
+CompanyAbout = 'nil'
+end
+if result.common_chat_count  then
+Companycommon_chat_count  = result.common_chat_count 
+else 
+Companycommon_chat_count  = 'nil'
+end
+local text = [[
+Firstname : ]]..CompanyName..
+[[
+
+UserName : ]]..(check_markdown(Company.username) or 'nil')..
+[[
+
+Bio : ]]..CompanyAbout..
+[[
+
+Common Chat : ]]..Companycommon_chat_count
+tdbot.send(msg.chat_id,msg.id,text,'md')
+end
+tdbot.getUserFull(ID,Get)
+end
+tdbot.getUser(ID,GetName)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^kick (.*)')then
+local ID = cerner:match('^kick (.*)')
+local function GetName(CerNer, Company)
+id = msg.content.entities[0].type.user_id
+tdbot.send(msg.chat_id, msg.id,  '`User :` *'..id..'* Has Been *Kicked* ', 'md')
+KickUser(msg.chat_id,id) 
+end
+tdbot.getUser(id,GetName)
+end
+if cerner and cerner:match('^kick (%d+)') then
+local ID = cerner:match('^kick (%d+)')
+tdbot.KickUser(msg.chat_id,ID) 
+tdbot.send(msg.chat_id, msg.id,  '`User :` *'..ID..'* Has Been *Kicked* ', 'md')
+end
+if cerner and cerner:match('^kick @(.*)') then
+local username = cerner:match('^kick @(.*)')
+function kickbyusername(CerNer,Company)
+if Company.id then
+text = 'User '..username.. ' Has Been kicked !'
+tdbot.KickUser(msg.chat_id,Company.id) 
+else 
+text = 'User Not Found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'html')
+end
+tdbot.ResolveUsername(username,kickbyusername)
+end 
+if cerner == 'flood unlock' then
+if not redis:get(my..'Flood:Pv:'..my) then
+tdbot.send(msg.chat_id, msg.id, '*Flood lock*  is _Already_  Disable' , 'md')
+else
+tdbot.send(msg.chat_id, msg.id, '*Flood lock* Has Been Disable' , 'md')
+redis:del(my..'Flood:Pv:'..my)
+end
+end
+if cerner == 'setenemy' and tonumber(msg.reply_to_message_id) > 0 then
+function SetEnemyByReply(CerNer,Company)
+if redis:sismember(my..'EnemyList:',Company.sender_user_id) then
+tdbot.send(msg.chat_id, msg.id,  '`User : ` *'..Company.sender_user_id..'* is *Already* `a Enemy..!`', 'md')
+else
+tdbot.send(msg.chat_id, msg.id,'_ User : _ `'..Company.sender_user_id..'` *Added* to `EnemyList` ..', 'md')
+redis:sadd(my..'EnemyList:',Company.sender_user_id)
+tdbot.Block(Company.sender_user_id)
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),SetEnemyByReply)
+end
+if cerner and cerner:match('^setenemy @(.*)') then
+local username = cerner:match('^setenemy @(.*)')
+function SetVipByUsername(CerNer,Company)
+if Company.id then
+local ID = Company.id
+if redis:sismember(my..'EnemyList:',Company.id) then
+text =   '`User : ` *'..Company.id..'* is *Already* `a Enemy !`'
+else
+text = '_ User : _ `'..Company.id..'` *Added* to `EnemyList` !'
+tdbot.Block(ID)
+redis:sadd(my..'EnemyList:', Company.id)
+end
+else 
+text = 'Error Notfound !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'md')
+end
+tdbot.ResolveUsername(username,SetVipByUsername)
+end 
+    
+if cerner and cerner:match('^delenemy @(.*)') then
+local username = cerner:match('^delenemy @(.*)')
+function SetVipByUsername(CerNer,Company)
+if Company.id then
+local ID = Company.id
+if redis:sismember(my..'EnemyList:',Company.id) then
+text = '_ User : _ `'..ID..'` *Removed* from `EnemyList` ..'
+redis:srem(my..'EnemyList:',ID)
+tdbot.Unblock(ID)
+else
+text =  '`User : ` *'..ID..'* is *Not* ` Enemy..!`'
+end
+else 
+text = 'Error Notfound !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'md')
+end
+tdbot.ResolveUsername(username,SetVipByUsername)
+end 
+if cerner and cerner:match('^setenemy (%d+)') then
+local ID = cerner:match('^setenemy (%d+)')
+if redis:sismember(my..'EnemyList:',ID) then
+tdbot.send(msg.chat_id, msg.id,  '`User : ` *'..ID..'* is *Already* `a Enemy..!`', 'md')
+else
+tdbot.send(msg.chat_id, msg.id,'_ User : _ `'..ID..'` *Added* to `EnemyList..`', 'md')
+redis:sadd(my..'EnemyList:',ID)
+tdbot.Block(ID)
+end
+end
+if cerner == "self-info"  then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+local function SelfInfo(CerNer,Company)
+local function GetPro(CerNer, Compan)
+local function getblocklist(CerNer, C)
+local  function getActiveSessions(CerNer,m)
+local ActiveSessions = m.sessions
+for i = 0 ,#ActiveSessions do
+Country = ''..ActiveSessions[i].country..''
+FristName = Company.first_name
+LastName =   Company.last_name or 'Last name not found'
+UserID = Company.id
+UserName = Company.username
+PhoneNumber = Company.phone_number
+if UserName and PhoneNumber then       
+t = [[
+✵✵ Self-Account-Info ✵✵
+✵ User-ID : ]]..UserID..[[
+
+✵ FirstName : ]]..FristName..[[
+
+✵ UserName : ]]..UserName..[[   
+✵ Phone Number : ]]..string.sub(PhoneNumber, 1, 8)..'****'..[[       
+✵ Total Blocked : ]]..C.total_count..[[
+    
+✵ Country: ]]..Country..[[ 
+✵ Total Session : ]]..#ActiveSessions..[[
+
+]]
+end
+end
+tdbot.sendPhoto(msg.chat_id, msg.id, Compan.photos[0].sizes[2].photo.persistent_id,t) 
+end
+tdbot.getActiveSessions(getActiveSessions)
+end
+tdbot.getBlockedUsers(0, 100,getblocklist)
+end
+tdbot.getUserProfilePhotos(my,0,1,GetPro)
+end
+tdbot.getMe(SelfInfo)             
+end
+
+if cerner and cerner:match('^delenemy (%d+)') then
+local ID = cerner:match('^delenemy (%d+)')
+if redis:sismember(my..'EnemyList:',ID) then
+tdbot.send(msg.chat_id, msg.id,'_ User : _ `'..ID..'` *Removed* from `EnemyList` ..', 'md')
+redis:srem(my..'EnemyList:',ID)
+tdbot.Unblock(ID)
+else
+tdbot.send(msg.chat_id, msg.id,  '`User : ` *'..ID..'* is *Not* ` Enemy..!`', 'md')
+end
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^setenemy (.*)')then
+local ID = cerner:match('^setenemy (.*)')
+local function GetName(CerNer, Company)
+id = msg.content.entities[0].type.user_id
+
+if redis:sismember(my..'EnemyList:',id) then
+tdbot.send(msg.chat_id, msg.id,  '`User : ` *'..ID..'* is *Already* `a Enemy..!`', 'md')
+else
+tdbot.send(msg.chat_id, msg.id,'_ User : _ `'..ID..'` *Added* to `EnemyList..`', 'md')
+redis:sadd(my..'EnemyList:',id)
+tdbot.Block(id)
+end
+end
+tdbot.getUser(ID,GetName)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^delenemy (.*)')then
+local ID = cerner:match('^delenemy (.*)')
+local function GetName(CerNer, Company)
+id = msg.content.entities[0].type.user_id
+if redis:sismember(my..'EnemyList:',id) then
+tdbot.send(msg.chat_id, msg.id,'_ User : _ `'..ID..'` *Removed* from `EnemyList` ..', 'md')
+redis:srem(my..'EnemyList:',id)
+tdbot.Unblock(id)
+else
+tdbot.send(msg.chat_id, msg.id,  '`User : ` *'..ID..'* is *Not* ` Enemy..!`', 'md')
+end
+end
+tdbot.getUser(id,GetName)
+end
+if cerner == 'clean bots' then
+    function CMBU(CerNer,Company)
+    for k, v in pairs(Company.members) do
+tdbot.KickUser(msg.chat_id, v.user_id) 
+end
+end
+tdbot.getChannelMembers(msg.chat_id, 0, 200, "Bots",CMBU)
+tdbot.send(msg.chat_id, msg.id,  'ALL bot found in group has been kicked', 'md')
+    end
+ 
+if cerner == 'clean members' then
+function CMBU(CerNer,Company)
+for k, v in pairs(Company.members) do
+local mid = v.user_id
+if mid ~= my then
+tdbot.KickUser(msg.chat_id, v.user_id)
+end
+end
+end
+tdbot.getChannelMembers(msg.chat_id,0,350, "Recent", CMBU)
+end
+function cleanbygetChatHistory(msg)
+local function cb(arg,data)
+for k,v in pairs(data.messages) do
+tdbot.deleteMessages(msg.chat_id,{[0] =v.id})
+--print(k)
+end
+end
+--print 'Clean By getChatHistory' 
+end
+
+if cerner == 'members found' then
+function CMBU(CerNer,Company)
+for k, v in pairs(Company.members) do
+local mid = v.user_id
+if mid ~= my then
+tdbot.send(msg.chat_id, msg.id, '`Member is Correct` : *'..k..'*', 'md')
+end
+end
+end
+tdbot.getChannelMembers(msg.chat_id,0,350, "Recent", CMBU)
+end
+if cerner == 'clean chatlist'  then
+    function getuserid (CerNer,Company)
+tdbot.deleteChatHistory(msg.chat_id, false)
+tdbot.send(msg.chat_id, msg.id,  'Deletes all messages in the chat '..msg.chat_id..' and remove chat from the chat list.', 'md')
+    end
+    tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),getuserid)
+end
+if cerner == 'delenemy' and tonumber(msg.reply_to_message_id) > 0 then
+function SetEnemyByReply(CerNer,Company)
+if redis:sismember(my..'EnemyList:',Company.sender_user_id) then
+tdbot.send(msg.chat_id, msg.id,'_ User : _ `'..Company.sender_user_id..'` *Removed* from `EnemyList` ..', 'md')
+redis:srem(my..'EnemyList:',Company.sender_user_id)
+tdbot.Unblock(Company.sender_user_id)
+else
+tdbot.send(msg.chat_id, msg.id,  '`User : ` *'..Company.sender_user_id..'* is *Not* ` Enemy..!`', 'md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),SetEnemyByReply)
+end
+function cleanbydeleteMessagesFromUser(msg)
+ local function pro(arg,data)
+for k,v in pairs(data.members) do
+tdbot.deleteMessagesFromUser(msg.chat_id, v.user_id) 
+--print(k)
+end
+end
+--print 'Clean By Del From User ' 
+tdbot.getChannelMembers(msg.chat_id, 0, 200, "Recent",pro)
+tdbot.send(msg.chat_id, msg.id,'All Msgs Has Been Cleaned' ,'md')
+end
+function cleanbysearch(msg)
+local function pro(arg,data)
+for k,v in pairs(data.members) do
+ tdbot.deleteMessagesFromUser(msg.chat_id, v.user_id) 
+--print(k)
+end
+end
+--print 'Clean By Search' 
+tdbot.getChannelMembers(msg.chat_id, 0, 200, "Search",pro)
+end
+if cerner == 'mute all' then
+      redis:set('Mute:All:'..msg.chat_id,true)
+     text = '*MuteAll has been enabled*'
+     tdbot.send(msg.chat_id, msg.id, text, 'md')
+elseif cerner == 'unmute all' then
+    redis:del('Mute:All:'..msg.chat_id)
+    text = '*MuteAll has been Disable*'
+    tdbot.send(msg.chat_id, msg.id, text, 'md')
+    end
+function cleanbygetChatHistory(msg)
+local function cb(arg,data)
+for k,v in pairs(data.messages) do
+tdbot.deleteMessages(msg.chat_id,{[0] =v.id})
+--print(k)
+end
+end
+--print 'Clean By getChatHistory' 
+tdbot.getChatHistory(msg.chat_id,msg.id, 0,  500,cb)
+end
+if cerner == 'clean msgs'  then
+
+cleanbydeleteMessagesFromUser(msg)
+cleanbysearch(msg)
+cleanbygetChatHistory(msg)
+end
+if cerner and cerner:match('^flood (%d+)')  then
+function BlockedByReply(CerNer,Company)
+local limit = tonumber(cerner:match('^flood (%d+)'))
+for i=1,limit do
+tdbot.forwardMessage(msg.chat_id, msg.chat_id, {[0] = msg.reply_to_message_id}, 1)
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),BlockedByReply)
+end
+if cerner == 'persistentid' then
+    function persistent_id(CerNer,Company)
+    if Company.content._ == "messagePhoto" then
+tdbot.send(msg.chat_id, msg.id,Company.content.photo.sizes[0].photo.persistent_id, 'html')
+elseif Company.content._ == "messageSticker" then        
+    local fi = Company.content.sticker.sticker.persistent_id
+    tdbot.send(msg.chat_id, msg.id,fi, 'html')
+else
+    text = 'User Not Found !'
+    
+    tdbot.send(msg.chat_id, msg.id,tostring(text), 'html')
+end
+end
+tdbot.getMessage(msg.chat_id, msg.reply_to_message_id, persistent_id)
+end
+if cernerw and cernerw:match('^[Ss]etmyname (.*)') then
+    local first_name,last_name = cernerw:match('^[Ss]etmyname (.*) (.*)')
+    tdbot.changeName(first_name, last_name)
+    tdbot.send(msg.chat_id, msg.id,'Done\nnew Name ('..first_name..'), and new lastname ('..last_name..') has been seted!', 'html')
+end
+if cerner == 'delmyname' then
+    tdbot.changeName('‌ ‌ ‌ ‌ ‌ ‌', '‌ ‌ ‌ ‌ ‌ ‌')
+    tdbot.send(msg.chat_id, msg.id,'Done\nName has been deleted!', 'html')
+end
+if cernerw and cernerw:match('^[Ss]etmyusername (.*)') then
+    local username = cernerw:match('^[Ss]etmyusername (.*)')
+    tdbot.changeUsername(username)
+    tdbot.send(msg.chat_id, msg.id,'Done\nnew username ('..username..') has been seted!', 'html')
+end
+if cernerw and cernerw:match('^[Ss]etmybio (.*)') then
+    local biographi = cernerw:match('^[Ss]etmybio (.*)')
+    tdbot.changeAbout(biographi)
+    tdbot.send(msg.chat_id, msg.id,'Done\nnew biographi ('..biographi..') has been seted!', 'html')
+end
+if cernerw and cernerw:match('^(addchat) (.*) (.*)')  then
+local cerner = {
+string.match(cernerw, '^(addchat) (.*) (.*)')
+}
+redis:hset(my.."Self-BotChats", cerner[2],cerner[3])
+redis:sadd(my.."Self-Bot-ChatList:", cerner[2])
+tdbot.send(chat_id,msg.id,'Answer for `('..cerner[2]..')` was set to: (`'..cerner[3]..'`)','md')
+end
+if cernerw and cernerw:match('^(remchat) (.*) (.*)')  then
+    local cerner = {
+    string.match(cernerw, '^(remchat) (.*) (.*)')
+    }
+   redis:del(my.."Self-BotChats", cerner[2],cerner[3])
+   redis:srem(my.."Self-Bot-ChatList:", cerner[2])
+   tdbot.send(chat_id,msg.id,'Answer `('..cerner[2]..')`, (`'..cerner[3]..'`) was removed ','md')
+   end
+   if cerner == 'chats' then
+    local chats = redis:smembers(my..'Self-Bot-ChatList:')
+    local t = 'Chats: \n'
+    for k,v in pairs(chats) do
+        local answer = redis:hget(my.."Self-BotChats",v) or 'nil'
+    t = t..k.." - `"..v.."` Anwser : "..answer.."\n" 
+    end
+    if #chats == 0 then
+    t = 'Empty'
+    end
+    tdbot.send(msg.chat_id, msg.id,t, 'md')
+    end
+------
+if cernerw and cernerw:match('^[Ss]etname (.*)') then
+    local Title = cernerw:match('^[Ss]etname (.*)')
+      tdbot.changeChatTitle(msg.chat_id,Title)
+      local text = [[Name of group change to]]..Title
+      tdbot.send(msg.chat_id, msg.id, text, 'html')
+    end
+if cerner == 'setphoto' and tonumber(msg.reply_to_message_id) > 0 then
+    function tophoto(CerNer,Company)
+    if Company.content._ == "messagePhoto" then
+
+    tdbot.send(msg.chat_id, msg.id,'Done\nnew chat photo has been seted!', 'html')
+
+   print(Company.content.photo.persistent_id)
+    tdbot.changeChatPhoto(msg.chat_id,Company.content.photo.sizes[0].photo.persistent_id)
+    else
+        text = 'User Not Found !'
+    
+        tdbot.send(msg.chat_id, msg.id, text, 'html')
+    end
+    end
+    tdbot.getMessage(msg.chat_id, msg.reply_to_message_id, tophoto)
+    end
+
+    if cerner == 'tophoto' and tonumber(msg.reply_to_message_id) > 0 then
+        function tophoto(CerNer,Company)
+            tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+
+        if Company.content._ == "messageSticker" then        
+    local pathf = Company.content.sticker.sticker.path
+        --print(pathf)
+        --tdbot.sendSticker(msg.chat_id, 0, pathf)
+      --  tdbot.sendDocument(chat_id,0,pathf,'')
+    tdbot.sendPhoto(msg.chat_id,msg.reply_to_message_id or msg.id,pathf,'By Self-Bot')
+
+        else
+            text = 'User Not Found !'
+        
+            tdbot.send(msg.chat_id, msg.id, text, 'html')
+        end
+        end
+        tdbot.getMessage(msg.chat_id, msg.reply_to_message_id, tophoto)
+        end
+        if cernerw and cernerw:match('^[Ss]etdescription (.*)') then
+            local description = cernerw:match('^[Ss]etdescription (.*)')
+            tdbot.changeChannelDescription(msg.chat_id,description)
+            local text = [[description of group change to ]]..description
+            tdbot.send(msg.chat_id, msg.id, text, 'html')
+          end
+if cerner == 'tosticker' and tonumber(msg.reply_to_message_id) > 0 then
+function tophoto(CerNer,Company)
+if Company.content._ == "messagePhoto" then
+    tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+
+    pi = Company.content.photo.id
+
+local pathf = pth.. "photos/" .. pi .. ".jpg"
+--print(pathf)
+tdbot.sendSticker(msg.chat_id, msg.reply_to_message_id or msg.id, pathf)
+tdbot.sendDocument(chat_id,msg.reply_to_message_id or msg.id,pathf,'')
+else
+    text = 'User Not Found !'
+
+    tdbot.send(msg.chat_id, msg.id, text, 'html')
+end
+end
+tdbot.getMessage(msg.chat_id, msg.reply_to_message_id, tophoto)
+end
+if cerner and cerner:match('^m(.*) @(.*)') then
+    ofwp = { string.match(cerner, '^m(.*) @(.*)$') }
+    tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+
+    function SendMention(CerNer,Company)
+    if Company.id then
+    text = utf8.len(ofwp[1])
+    end
+    tdbot.sendMention(msg.chat_id, Company.id, msg.id, ofwp[1], 0, text)
+  --  tdbot.sendt(msg.chat_id, msg.id, ofwp[1],0,utf8.lentext,Company.id)
+    end
+    tdbot.ResolveUsername(ofwp[2],SendMention)
+    end
+if cerner and cerner:match('^block @(.*)') then
+local username = cerner:match('^block @(.*)')
+function blockbyusername(CerNer,Company)
+if Company.id then
+text = 'User `'..username.. '` Has Been blocked !'
+tdbot.Block(Company.id) 
+else 
+text = 'User Not Found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'html')
+end
+tdbot.ResolveUsername(username,blockbyusername)
+end
+if cerner and cerner:match('^unblock @(.*)') then
+local username = cerner:match('^unblock @(.*)')
+function unblockbyusername(CerNer,Company)
+if Company.id then
+text = 'User '..username.. ' Has Been unblocked !'
+tdbot.Unblock(Company.id) 
+else 
+text = 'User Not Found !'
+end
+tdbot.send(msg.chat_id, msg.id, text, 'html')
+end
+tdbot.ResolveUsername(username,unblockbyusername)
+end
+if cerner == 'block' and tonumber(msg.reply_to_message_id) > 0 then
+function BlockedByReply(CerNer,Company)
+tdbot.Block(Company.sender_user_id)
+tdbot.send(msg.chat_id,msg.id,'User `'..Company.sender_user_id..'` Has been blocked !','md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),BlockedByReply)
+end
+if cerner == 'unblock' and tonumber(msg.reply_to_message_id) > 0 then
+function BlockedByReply(CerNer,Company)
+tdbot.Unblock(Company.sender_user_id)
+tdbot.send(msg.chat_id,msg.id,'User `'..Company.sender_user_id..'` Has been unblocked !','md')
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),BlockedByReply)
+end
+if cerner and cerner:match('^block (%d+)')  then
+local id = tonumber(cerner:match('^block (%d+)'))
+tdbot.Block(id)
+t = 'User '..id..' Has been blocked !'
+tdbot.sendt(msg.chat_id, msg.id,t ,5, string.len(id),id)
+end
+if cerner and cerner:match('^unblock (%d+)')  then
+local id = tonumber(cerner:match('^unblock (%d+)'))
+tdbot.Unblock(id)
+tdbot.sendt(msg.chat_id, msg.id,'User '..id..' Has been unblocked !' ,5, string.len(id),id)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^block (.*)')then
+local ID = cerner:match('^block (.*)')
+local function GetName(CerNer, Company)
+id = msg.content.entities[0].type.user_id
+tdbot.send(msg.chat_id,msg.id,'User `'..ID..'` Has been blocked !','md')
+tdbot.Block(id)
+end
+tdbot.getUser(id,GetName)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^unblock (.*)')then
+local ID = cerner:match('^unblock (.*)')
+local function GetName(CerNer, Company)
+id = msg.content.entities[0].type.user_id
+tdbot.send(msg.chat_id,msg.id,'User `'..ID..'` Has been unblocked !','md')
+tdbot.Unblock(id)
+end
+tdbot.getUser(id,GetName)
+end
+if cerner == 'enemylist' then
+local Cleaner = redis:smembers(my..'EnemyList:')
+local t = 'EnemyList: \n'
+for k,v in pairs(Cleaner) do
+t = t..k.." - `"..v.."`\n" 
+end
+if #Cleaner == 0 then
+t = 'Empty'
+end
+tdbot.send(msg.chat_id, msg.id,t, 'md')
+end
+if cerner == 'clean enemylist' then
+redis:del(my..'EnemyList:')
+tdbot.send(msg.chat_id, msg.id,'Done :|', 'md')
+end
+if cerner == 'share' then
+function Share(CerNer,Company)
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+tdbot.sendContact(msg.chat_id,msg.id,Company.phone_number,Company.first_name, (Company.last_name or ''), 0)
+end
+tdbot.getMe(Share)
+end
+if cernerbk == '#bk' then
+tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+tdbot.sendVideoNote(msg.chat_id,msg.reply_to_message_id or msg.id ,'./bot/BK.jpg','06')
+end
+if cerner and is_sudo(msg) then
+--print 'Amir'
+end
+if cerner == 'addc' and tonumber(msg.reply_to_message_id) > 0 then
+function SaveCo(CerNer,Company)
+if Company.content._ == 'messageContact' then
+tdbot.importContact(Company.content.contact.phone_number,Company.content.contact.first_name,'#amir', 0)
+tdbot.send(msg.chat_id, msg.id,'`Contact Has Been Saved !`', 'md')
+end
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),SaveCo)
+end;if cerner == 'id' and tonumber(msg.reply_to_message_id) > 0 then
+    function GetID(CerNer,Company)
+        tdbot.send(msg.chat_id, msg.id,'`'..Company.sender_user_id..'`', 'md')
+    end
+    tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),GetID)
+end
+if cerner and msg.content.entities and msg.content.entities[0] and msg.content.entities[0].type._ == "textEntityTypeMentionName" and cerner:match('^id (.*)')then
+    local ID = cerner:match('^id (.*)')
+    local function GetName(CerNer, Company)
+        id = msg.content.entities[0].type.user_id
+        tdbot.send(msg.chat_id, msg.id,  '`'..id..'`\n'..ID, 'md');end;print(amir)
+        tdbot.getUser(id,GetName)
+    end 
+    if cerner == 'lock pin' then
+        local msgid = redis:get(my..'pIN:h:'..msg.chat_id)
+        if msgid then
+            tdbot.Pin(msg.chat_id,msgid,0)
+            tdbot.send(msg.chat_id,msg.id,'` Message Pinned has been locked !`', 'md')
+
+        else
+            tdbot.send(msg.chat_id,msg.id,'`Plase pinned a message !`', 'md')
+        end
+    end
+
+        if cerner == 'del' and tonumber(msg.reply_to_message_id) > 0 then
+            tdbot.deleteMessages(msg.chat_id,{[0] =msg.reply_to_message_id})
+            tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
+        end;if cerner == 'pin' and tonumber(msg.reply_to_message_id) > 0 then
+            tdbot.Pin(msg.chat_id,msg.reply_to_message_id,0)
+            redis:set(my..'pIN:h:'..msg.chat_id,msg.reply_to_message_id)
+            tdbot.send(msg.chat_id,msg.id,'`Message has been pinned !`', 'md')
+        end;if cerner == 'unpin'  then;tdbot.Unpin(msg.chat_id)
+            redis:del(my..'pIN:h:'..msg.chat_id)
+            tdbot.send(msg.chat_id,msg.id,'`Message has been Unpinned !`', 'md')
+        end;if cerner == 'ping' then;tdbot.send(msg.chat_id, msg.id,'`pong`', 'md')
+        end;if cerner and cerner:match('^id @(.*)') then;local UserName = cerner:match('^id @(.*)')
+            function ID(CerNer,Company)
+                if Company.id then
+                text = '[`'..Company.id..'`]'
+                tdbot.send(msg.chat_id, msg.id, text, 'md')
+            end
+            end
+                tdbot.ResolveUsername(UserName,ID)
+            end
+        end
+    end
+end
+end 
+function tdbot_update_callback(data)
+       if (data._ == "updateNewMessage") or (data._ == "updateNewChannelMessage") then
+        GetMessages(data.message,data)
+        local msg = data.message;elseif data._ == 'updateDeleteMessages'  then
+            print'Message Has Been Deleted'
+        elseif (data._== "updateMessageEdited") then
+            GetMessages(data.message,data);data = data
+            local function edit(sepehr,amir,hassan)
+                GetMessages(amir,data)
+            end
+                assert (tdbot_function ({_ = "getMessage", chat_id = data.chat_id,message_id = data.message_id }, edit, nil))
+                assert (tdbot_function ({_ = "openChat",chat_id = data.chat_id}, dl_cb, nil) );assert (tdbot_function ({_="getChats",offset_order="9223372036854775807",offset_chat_id=0,limit=20}, dl_cb, nil))
+            end
+        end
+--End Version 4 pro
