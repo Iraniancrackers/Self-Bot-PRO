@@ -617,9 +617,8 @@ Country = '\nکشور : *'..ActiveSessions[i].country..'*'
 Device = '\nسیستم عامل : *'..ActiveSessions[i].device_model..'*'
 systemv = '\nنسخه سیستم عامل : *'..ActiveSessions[i].system_version..'*'
 Platform = '\nنوع سیستم عامل : *'..ActiveSessions[i].platform..'*'
-last_online = '\nاخرین بازید در  : *'..(os.date("%X",ActiveSessions[i].last_active_date))..'*' 
+last_online = '\nاخرین بازید در  : *'..(os.date("%X",ActiveSessions[i].last_active_date))..'*\n' 
 NumberSessions = ForI                                                    
-identifier = 
 text =  text..SID..App..ipmod..Country..Device..systemv..Platform..last_online
 end
 tdbot.send(msg.chat_id,msg.id, text, 'md') 
