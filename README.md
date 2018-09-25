@@ -11,7 +11,7 @@ Self Bot based on https://valtman.name/telegram-bot
 After installing the dependencies, lets install the bot:
 ```bash
  git clone https://github.com/CerNerCompany/Self-Bot-PRO
- cd Self-Bot
+ cd Self-Bot-PRO
  chmod +x CPM
  ./CPM c --Configing Bot
  ./CPM lc --Login Self
