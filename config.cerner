@@ -1,0 +1,234 @@
+do 
+    local _ = {
+    HelpS = 
+    [[
+_به لیست راهنما خوش آمدید_
+✵ `Help Self`
+_راهنما مربوط به تنظیم سلف (کلی)_
+✵ `Help Group`
+_راهنما مربوط به امکانات مدیریت گروه_
+✵ `Help Cf`
+_راهنما مربوط به کلود فایل(کلی)_
+✵ `Help Other`
+_دیگر امکانت سلف بات_
+
+@CerNerCompany
+    ]],
+    helpcloud = [[
+✵✵ `Help CloudFile`
+
+✵ `save` [reply]
+_ذخیره پیام در فضای ابری_
+✵ `save` [name] [reply]
+_ذخیره فایل مورد نظر در دیتابیس_
+✵ `get` [name]
+_دریافت فایل ذخیره شده_
+✵ `delfile` [name]
+_حذف فایل ذخیره شده_
+✵ `gifset` [cmd]
+_ذخیره گیف روی دستور_
+✵ `gifdel` [cmd]
+_حذف گیف از روی دستور_
+✵ `stickerset` [cmd]
+_ذخیره استیکر روی دستور_
+✵ `stickerdel` [cmd]
+_حذف استیکر از روی دستور_
+✵ `stickers`
+_لیست استیکرها_
+✵ `gifs`
+_لیست گیف ها_
+✵ `dlmp3` [link]
+_دانلود فایل با فرمت mp3 با لینک مستقیم_
+✵ `dlmp4` [link]
+_دانلود فایل با فرمت mp4 با لینک مسقیم_
+✵ `dlmkv` [link]
+_دانلود فایل با فرمت mkv با لینک مستقیم_
+✵ `dlapk` [link]
+_دانلود فایل با فرمت apk با لینک مستقیم_
+    ]],
+HelpGroup = 
+[[
+_راهنمای مدیریت گروه _
+✵ `newchat` [name]
+_ساخت گروه معمولی_
+✵ `newchatsuper` [name]
+_ساخت سوپرگروه _
+✵ `tosuper` 
+_تبدیل گروه معمولی به ابرگروه_
+✵ `setname` [namemew]
+_تغییر نام گروه _
+✵ `setphoto` [reply]
+_تنظیم عکس جدید گروه_
+✵ `setdescription` [newdescription]
+_تنظیم درباره گروه_
+✵ `setpinchat`
+_پین کردن گروه _
+✵ `delpinchat`
+_حدف گروه از لیست پین_
+✵ `delall` [reply] or [userid] or [mention] or [@username]
+_حدف تمام پیام های کاربر_
+✵ `clean bots`
+_حذف تمام پیام های گروه_
+✵ `clean deleted`
+_حذف کاربران دیلیت اکانت شده از گروه_
+✵ `clean members`
+_حذف تمام کابران از گروه_
+✵ `pin` [reply]
+_سنجاق کردن پیام در گروه_
+✵ `unpin` 
+_حذف پیام سنجاق شده_
+✵ `clean msgs`
+_حدف پیام های گروه تا حد ممکن_
+✵ `mydel` 
+_حدف تمام پیام های اکانت متصل به سلف بات_
+✵ `del` [reply]
+ _حذف یک پیام_
+ ✵ `kick` [reply] or [userid] or [mention] or [@username]
+ _اخراج کاربر از گروه_
+ ✵ `muteall` 
+ _سکوت کل گروه_
+ ✵ `unmuteall`
+ _خارج کرپن گروه از حالت سکوت_
+ ✵ `mute` [reply] or [userid] or [mention] or [@username]
+ _سکوت کلی یک کاربر_
+ ✵ `mute media` [reply] or [userid] or [mention] or [@username]
+ _محدود کردن کاربر برای ارسال رسانه در گروه _
+ ✵ `mute links` [reply] or [userid] or [mention] or [@username]
+ _محدود کردن کاربر برای تعبیه لینک در پیام _
+ ✵ `unmute` [reply] or [userid] or [mention] or [@username]
+ _رفع تمام محدودیت های کاربر_
+✵ `inv` [reply] or [username] or [userid]
+ _دعوت یک کاربر به گروه_
+✵ `leave`
+ _خروج از گروه_
+✵ `lock pin` [reply]
+_قفل سنجاق !_
+]],
+helpot = 
+[[
+✵ `setenemy` [reply] or [userid] or [mention] or [@username]
+_افزودن کاربر به لیست دشمنان_
+✵ `delenemy` [reply] or [userid] or [mention] or [@username]
+_حدف کاربر از لیست دشمنان_
+✵ `block` [reply] or [userid] or [mention] or [@username]
+_مسدود کردن کاربر_
+✵ `unblock` [reply] or [userid] or [mention] or [@username]
+_آزاد کردن کاربر_
+✵ `web` [webpage]
+_دریافت اطلاعات در مورد سایت مورد نظر_
+✵ `cleanvoicelist`
+_پاکسازی  ویس ها_
+✵ `voicelist`
+_لیست ویس ها_
+✵ `clean enemylist`
+_پاکسازی لیست دشمنان_
+✵ `call` [reply] or [userid] or [mention] or [@username]
+_برقرای تماس_
+✵ `boobs` 
+_ارسال عکس های +۱۸_
+✵ `calc` [num]
+_ماشین حساب_
+✵ `tosticker` [reply]
+_تبدیل عکس به استیکر_
+✵ `tophoto` [reply]
+_تبدیل استیکر به عکس_
+✵ `blocklist`
+_نمایش لیست بلاک شدگان_
+✵ `photo` [text]
+_ساخت عکس با متن دلخواه_
+✵ `tr` [fa-en] [text]
+_ترجمه متن مورد نظر_
+✵ `fontfa` [text]
+_زیبا نویسی به فارسی_
+✵ `fonten` [text]
+_زیبانویسی به زبان انگلیسی_
+✵ `addchat` [value] [value]
+_تنظیم پاسخ خودکار_
+✵ `remchat` [value] [value]
+_حذف جواب و پاسخ تنظیم شده از پاسخ خودکار_
+✵ `chats`
+_بدست اوردن لیست چت_
+✵ `setmyname` [newname]
+_تنظیم نام و نام خانوداگی اکانت متصل به سلف بات_
+✵ `setmyusername` [newusername]
+_تنظیم یوزرنیم اکانت متصل به سلف بات_
+✵ `setmybio` [newbio]
+_تنظیم بیوگرافی اکانت متصل به سلف بات_
+✵ `delmyname`
+_حذف نام اکانت میصل به سلف بات_
+✵ `res` [userid] or [mention]
+_دریافت اطلاعات کاربر مورد نظر_
+✵ `share` 
+_به اشتراک گذاشتن شماره اکانت متصل_
+✵ `addc` [reply]
+_اضافه کردن مخاطب به لیست مخاطبین_
+✵ `1 to 10`
+_شمارش یک تا  ده_
+✵ `payping` [num]
+_مربوط به پرداخت _
+✵ `voice` [text]
+_تبدیل متن به ویس_
+✵ `persistentid` [reply] [photo][sticker]
+_بدست اوردن persistentid یک فایل_
+✵ `saleold`
+_نمایش زمان باقیمانده از سال_
+✵ `m` [text] @[username]
+_ارسال متن بصورت منشن_
+
+
+
+
+
+
+
+]],
+   Hsp = 
+        [[
+            ✵`Self On`                  
+ _روشن کردن سلف بات(کلی)_
+ ✵ `Self Off`
+ _خاموش کردن سلف بات_      
+ ✵ `Panel` 
+_وضعیت سلف بات_
+✵ `Stats`
+_امار اکانت متصل شده !_
+✵ `Markread on`
+_فعال سازی خواندن پیام خودکار_
+✵`MarkRead off`
+_غیرفعال سازی خواندن پیام_
+✵ `Typing on`
+_فعال سازی حالت درحال تایپ_
+✵ `Typing off`
+_غیرفعال کردن حالت درحال تایپ_
+✵ `Clerk On`
+_فعال سازی منشی هوشمند (اختصاصی کرنر کمپانی)_
+✵ `Clerk Off`
+_غیرفعال سازی منشی هوشمند_
+✵ `Answer on`
+_فعال سازی پاسخ خودکار_
+✵ `Answer Off`
+_غیرفعال سازی پاسخ خودکار_
+✵ `Reload`
+ _بازنگری کل فایل ها_
+ `Backup`
+ _ارسال فایل های سورس به پیوی شما_
+✵ `Setclerkmessage` [Reply]
+ {TEXT,VIDEONOTE,VOICE}
+ _تنظیم return برای منشی _
+✵ `Sessions` 
+_نمایش تمام نشست ها_ 
+✵ `Endsession` [IDsession]
+_پایان دادن به یک نشست_
+✵ `fwd` [reply]
+_فروارد پیام مورد نظر به تمام گروه ها_
+✵ `bc` [reply]
+ارسال پیام به همه گروه ها 
+✵ `call`
+_برقراری ارتیاط با فرد مورد نظر_
+]]
+
+ 
+
+    }
+return _
+end
