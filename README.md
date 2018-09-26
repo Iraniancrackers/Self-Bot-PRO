@@ -13,7 +13,7 @@ After installing the dependencies, lets install the bot:
  git clone https://github.com/CerNerCompany/Self-Bot-PRO
  cd Self-Bot-PRO
  chmod +x CPM
- ./CPM config --Configing Bot
+ ./CPM c --Configing Bot
  ./CPM lc --Login Self
  ./CPM l --Launching Bot
  -----Nice Bot-----
