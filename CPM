@@ -10,7 +10,7 @@ trap "exit 1" TERM
 export TOP_PID=$$
 BotH='Self-Bot-PRO'
 function Update_CH {
-if ! { sudo apt update && sudo apt upgrade  echo E: update failed; } | grep -q '^[WE]:'; then
+if ! { sudo apt update && sudo apt upgrade -y echo E: update failed; } | grep -q '^[WE]:'; then
 echo success
 else
 echo failure
