@@ -18,7 +18,7 @@ After installing the dependencies, lets install the bot:
  ./CPM l --Launching Bot
  -----Nice Bot-----
  chmod +x Company
- screen Company
+ screen ./Company
  ------------------
 ```
 Developer:
