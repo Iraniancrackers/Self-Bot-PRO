@@ -51,7 +51,7 @@ do
 for i in "${spin[@]}"
 do
 echo -ne "\b$i"
-sleep 0.2
+sleep 0.7
 done
 done
 wait $PID
@@ -103,31 +103,35 @@ echo -e "\e[1m\e[32m==> \e[97m The file is correct.. $BotH\e[0m"
 else
 echo -e "\e[1m\e[97m==> Source not found!,"
 fi
-if [ "$CerNerCompany" = "g" ];then
-echo -e "\e[1m\e[97m==> Please choose the right one"
-else
+echo -e "\e[1m\e[32m"
 read -p "==> Do you want to install Packages??[y/n] "  -t 10 CerNerCompany
-echo -e "\e[0m"
+if [ "$CerNerCompany" = "Y" ];then
+echo -e "\e[1m\e[97m==> Please choose the right one"
+sleep 3
+echo -e "\e[1m\e[32m"
+read -p "==> Do you want to install Packages??[y/n] "  -t 10 CerNerCompany
 fi
 if [ "$CerNerCompany" = "y" ]
 then
-echo -ne "${NC}Updating Repository...  "
+echo -ne "\e[1m\e[97mUpdating Packages...  "
 Update_CH >> /dev/null 2>&1 & loading
 sleep 2
-echo -ne "\n${NC} Installing  packages...  "
+echo -ne "\n\e[1m\e[97mInstalling  Packages...  "
 MOREPAK >> /dev/null 2>&1 & loading
 sleep 2
-echo -ne "${NC}Updating Repository...  "
+echo -ne "\e[1m\e[97mUpdating Packages...  "
 Update_CH >> /dev/null 2>&1 & loading
 fi
-while : ;do
-if [ "$CerNerCompany" = "g" ];then
-echo -e "\e[1m\e[97m==> Please choose the right one"
-else
+echo -e "\n"
 read -p "==> Do you want to Edit File ??[y/n] " -t 10 CerNerCompany
 echo -e "\e[0m"
+if [ "$CerNerCompany" = "Y" ];then
+echo -e "\e[1m\e[97m==> Please choose the right one"
+sleep 3
+read -p "==> Do you want to Edit File ??[y/n] " -t 10 CerNerCompany
+fi
 if [ "$CerNerCompany" = "y" ];then
-if [ -d "$HOME/$BotH"];then
+if [ -d "$HOME/$BotH" ];then
 if [ -f "$HOME/$BotH/bot/utils.cerner" ]
 then
 echo -e "\e[1m\e[32m==> \e[97mThe file is correct.. [DWN] \e[0m"
@@ -157,7 +161,7 @@ fi
 nano /$HOME/$BotH/bot/utils.cerner
 echo -e "\e[1m\e[32m==> \e[97m==> Applying changes...\e[0m"
 sleep 2
-echo -e "\e[1m\e[34m\e[97m==> Saved !"
+echo -e "\e[1m\e[34m  -> \e[97m==> Saved !"
 if [ -f "$HOME/$BotH/bot/bot.cerner" ]
 then
 echo -e "\e[1m\e[32m==> \e[97mThe file is correct..  [bot.cerner]\e[0m"
@@ -220,17 +224,12 @@ printf "\33[1;31mError Exiting..!
 \33[m"
 exit 0
 fi
-sleep 2
-break
 fi
-elif [ "$CerNerCompany" = "n" ];then
-break
+if [ "$CerNerCompany" = "n" ];then
+exit 0
 fi
-let CerNerCompany=g
 fi
-done
 }
-
 botstart() {
 if [ -d "$HOME/.telegram-bot" ];then
 echo -e "\e[1m\e[32m==> \e[97m The file is correct.. Telegram-Bot\e[0m"
