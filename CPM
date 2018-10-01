@@ -127,9 +127,7 @@ else
 read -p "==> Do you want to Edit File ??[y/n] " -t 10 CerNerCompany
 echo -e "\e[0m"
 if [ "$CerNerCompany" = "y" ];then
-if [ -d "$HOME/Sarkoob" ];then
-#echo -e "  \e[5m==> Please, for example, edit the file \n Put the source of the path below the path\e[0m"
-#echo -e "  \e[7mlua_script = /home/amir/$BotH/bot/bot.cerner\e[0m"
+if [ -d "$HOME/$BotH"];then
 if [ -f "$HOME/$BotH/bot/utils.cerner" ]
 then
 echo -e "\e[1m\e[32m==> \e[97mThe file is correct.. [DWN] \e[0m"
@@ -159,7 +157,7 @@ fi
 nano /$HOME/$BotH/bot/utils.cerner
 echo -e "\e[1m\e[32m==> \e[97m==> Applying changes...\e[0m"
 sleep 2
-echo -e "\e[1m\e[34m  -> \e[97m==> Saved !"
+echo -e "\e[1m\e[34m\e[97m==> Saved !"
 if [ -f "$HOME/$BotH/bot/bot.cerner" ]
 then
 echo -e "\e[1m\e[32m==> \e[97mThe file is correct..  [bot.cerner]\e[0m"
