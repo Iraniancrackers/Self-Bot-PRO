@@ -100,10 +100,6 @@ if cernerw:match('^[/#!]') then
 cernerw=cernerw:gsub('^[/#!]','')
 end
 end
-if cerner and not is_sudo(msg) then
-local mtn = redis:hget(my.."Self-BotChats",cerner)
-sendText(chat_id,msg.id,mtn,'html')
-end
 if cerner == 'self off' and is_sudo(msg) then
 if redis:get(my..'SelfOnline:') then
 tdbot.send(msg.chat_id, msg.id, '• `Self`   is _Already_ `Offlined in group !`' , 'md')
@@ -381,19 +377,6 @@ tdbot.getUser(msg.sender_user_id,GetName)
 end
 tdbot.getChat(msg.chat_id,GetM)
 end
-if not redis:get(my..'SelfOnline:') then
-if not is_channel(msg) then
-if redis:get(my..'MarkRead:') then
-if cerner then
-tdbot.Markread(msg.chat_id, {[0] = msg.id})   
-end
-end
-if redis:get(my..'Action:') then
-if cerner then
-tdbot.Action(msg.chat_id,'Typing')
-end
-end
-end
 if is_supergroup(msg) or is_group(msg) then
 if redis:get(my..'Malevolent') then
 for k,v in pairs(badkhah) do
@@ -428,7 +411,6 @@ sd = msg.content.sticker.sticker.id
 tdbot.DWN(sd)
 elseif msg.content._ == "messagePhoto" then
 MsgType = 'PHOTO'
-photo_id = ''
 if msg.content.photo.sizes[2] then
 pi = msg.content.photo.sizes[2].photo.id
 else
@@ -2520,6 +2502,21 @@ end
 end 
 function tdbot_update_callback(data)
        if (data._ == "updateNewMessage") or (data._ == "updateNewChannelMessage") then
+ msg = data.message
+    text = msg.content.text
+if not redis:get(my..'SelfOnline:') then
+if not is_channel(msg) then
+if redis:get(my..'MarkRead:') then
+if text then
+tdbot.Markread(msg.chat_id, {[0] = msg.id})   
+end
+end
+if redis:get(my..'Action:') then
+if text then
+tdbot.Action(msg.chat_id,'Typing')
+end
+end
+end
         GetMessages(data.message,data)
         local msg = data.message;elseif data._ == 'updateDeleteMessages'  then
             print'Message Has Been Deleted'
