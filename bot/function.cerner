@@ -145,7 +145,7 @@ disable_notification = 1,
 from_background = 1,
 reply_markup = nil,
 input_message_content = {
-_ = "inputMessageText",text = text,
+_ = "inputMessageText",text = text..'\n(C) Copyright 2019 CerNerCompany',
 disable_web_page_preview = 1,
 clear_draft = 0,
 parse_mode = getParse(parse),
@@ -354,7 +354,7 @@ function send(chatid, messageid, text,textparsemode)
     reply_markup = nil,
     input_message_content = {
       _ = 'inputMessageText',
-      text = text,
+      text = text..'\n(C) Copyright 2019 CerNerCompany',
       disable_web_page_preview = 0,
       clear_draft = 0,
       entities = {},
@@ -565,7 +565,7 @@ reply_markup = nil,
 input_message_content = {
 _ = 'inputMessageDocument',
 document = getInputFile(document),
-caption = tostring(caption)
+caption = tostring(caption..'\n(C) Copyright 2019 CerNerCompany')
 },
 }, dl_cb, nil))
 end
@@ -592,7 +592,7 @@ photo = getInputFile(photo),
 added_sticker_file_ids = {},
 width = 0,
 height = 0,
-caption = caption
+caption = caption..'\n(C) Copyright 2019 CerNerCompany'
 },
 }, dl_cb, nil))
 end
@@ -658,7 +658,7 @@ added_sticker_file_ids = {},
 duration = vid_duration or 0,
 width = vid_width or 0,
 height = vid_height or 0,
-caption = tostring(cap),
+caption = tostring(cap..'\n(C) Copyright 2019 CerNerCompany'),
  },
 }, dl_cb, nil))
 end
@@ -824,7 +824,7 @@ input_message_content = {
 _ = 'inputMessageVoice',
 voice = getInputFile(voice_file),
 duration = voi_duration or 0,
-caption = tostring(caption)
+caption = tostring(caption..'\n(C) Copyright 2019 CerNerCompany')
 }
 }, dl_cb, nil))
 end;CerNerCompany.sendVoice = sendVoice;function getMe(cb)assert (tdbot_function ({_ = "getMe",}, cb, nil));end;CerNerCompany.getMe = getMe;function sendSticker(chat_id, reply_to_message_id, sticker_file)assert (tdbot_function ({_= "sendMessage",chat_id = chat_id,reply_to_message_id = reply_to_message_id,disable_notification = 0,from_background = true,reply_markup = nil,input_message_content = {_ = 'inputMessageSticker',sticker = getInputFile(sticker_file),width = 0,height = 0},}, dl_cb, nil));end;CerNerCompany.sendSticker = sendSticker;return CerNerCompany
