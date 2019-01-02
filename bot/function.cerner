@@ -1,4 +1,5 @@
 --function By Amir Bagheri
+--(C) Copyright 2019 CerNerCompany
 --TDbot Lib
 local CerNerCompany = {} 
 local function getChatId(chat_id)
