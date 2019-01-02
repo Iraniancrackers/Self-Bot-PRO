@@ -170,8 +170,6 @@ _مربوط به پرداخت _
 _تبدیل متن به ویس_
 ✵ `persistentid` [reply] [photo][sticker]
 _بدست اوردن persistentid یک فایل_
-✵ `saleold`
-_نمایش زمان باقیمانده از سال_
 ✵ `m` [text] @[username]
 _ارسال متن بصورت منشن_
 
