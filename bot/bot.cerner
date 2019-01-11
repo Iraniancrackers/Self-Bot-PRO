@@ -117,15 +117,17 @@ if redis:get(my..'pIN:h:'..msg.chat_id) and not is_sudo(msg) then
     end
     end
     if cernerw and is_sudo(msg) then
-        if redis:get(my..'TextType:') == 'Mention' then
-  tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),my)
-        elseif redis:get(my..'TextType:') == 'Code' then
-        tdbot.sender(msg.chat_id,msg.id,'`'..cernerw..'`','md')
-    elseif redis:get(my..'TextType:') == 'Bold' then
-        tdbot.sender(msg.chat_id,msg.id,'*'..cernerw..'*','md')
-    elseif redis:get(my..'TextType:') == 'Italic' then
-        tdbot.sender(msg.chat_id,msg.id,'_'..cernerw..'_','md')
-    end
+ if redis:get(my..'TextType:') == 'Mention' then
+function GETINGUSER(CR,CO)
+if CO.sender_user_id then
+tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),CO.sender_user_id)
+else 
+ tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),my)
+end
+tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),GETINGUSER)end
+ elseif redis:get(my..'TextType:') == 'Code' then  tdbot.sender(msg.chat_id,msg.id,''..cernerw..'','md')
+ elseif redis:get(my..'TextType:') == 'Bold' then tdbot.sender(msg.chat_id,msg.id,'*'..cernerw..'*','md')
+ elseif redis:get(my..'TextType:') == 'Italic' then tdbot.sender(msg.chat_id,msg.id,'_'..cernerw..'_','md') end
 end
 if cerner == 'self on' and is_sudo(msg) then
 if redis:get(my..'SelfOnline:') then
