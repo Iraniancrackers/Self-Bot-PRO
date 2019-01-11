@@ -219,6 +219,22 @@ _نمایش تمام نشست ها_
 _پایان دادن به یک نشست_
 ✵ `fwd` [reply]
 _فروارد پیام مورد نظر به تمام گروه ها_
+✵ *texttype mention *
+_ تبدیل متن ارسالی به منشن _
+✵ *texttype bold *
+_ تبدیل متن ارسالی به bold _
+✵ *texttype italic *
+_تبدیل متن ارسالی به italic_
+✵ *texttype code *
+_ تبدیل متن ارسالی به  code _
+✵ *texttype none *
+_متن عادی _
+✵ *members found*
+_دریافت تعداد افراد در یک گروه برای فهمیدن getchannel member limit_ 
+✵ *clean deleted *
+_ اخراج کاربران دیلیت اکانت شده_ 
+✵ *linkinfo link *
+_دریافت اطلاعات  لینک  مورد نظر_
 ✵ `bc` [reply]
 ارسال پیام به همه گروه ها 
 ✵ `call`
