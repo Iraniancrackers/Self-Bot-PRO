@@ -228,6 +228,7 @@ tdbot.getUser(msg.sender_user_id,GetName)
 end
 tdbot.getChat(msg.chat_id,GetM)
 end
+if not redis:get(my..'SelfOnline:') then
 if is_supergroup(msg) or is_group(msg) then
 if redis:get(my..'Malevolent') then
 for k,v in pairs(badkhah) do
