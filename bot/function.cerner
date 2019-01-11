@@ -355,7 +355,7 @@ function sender(chatid, messageid, text,textparsemode)
     reply_markup = nil,
     input_message_content = {
       _ = 'inputMessageText',
-      text = text --'\n(C) Copyright 2019 CerNerCompany',
+      text = text, --'\n(C) Copyright 2019 CerNerCompany',
       disable_web_page_preview = 0,
       clear_draft = 0,
       entities = {},
