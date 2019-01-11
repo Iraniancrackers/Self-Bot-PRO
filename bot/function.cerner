@@ -347,6 +347,24 @@ chat_id = chatid
 }, cb, nil))
 end
 CerNerCompany.getChat = getChat
+function sender(chatid, messageid, text,textparsemode)
+  assert (tdbot_function ({
+    _ = 'editMessageText',
+    chat_id = chatid,
+    message_id = messageid,
+    reply_markup = nil,
+    input_message_content = {
+      _ = 'inputMessageText',
+      text = text..'\n(C) Copyright 2019 CerNerCompany',
+      disable_web_page_preview = 0,
+      clear_draft = 0,
+      entities = {},
+      parse_mode = getParse(textparsemode)
+    },
+  }, dl_cb,nil))
+end
+
+CerNerCompany.sender = sender
 function send(chatid, messageid, text,textparsemode)
   assert (tdbot_function ({
     _ = 'editMessageText',
