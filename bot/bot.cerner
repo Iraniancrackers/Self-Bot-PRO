@@ -790,6 +790,7 @@ for i=1,tonumber(numberget) do
 print (i..' in I')
 w= w + tonumber(numberget)
 print(w..' in W')
+print(numberfucking[i]..' In FI')
 --tdbot.sendText(msg.chat_id,0,tonumber(i),'html')
 end
 tdbot.sendText(msg.chat_id,0,(redis:get(my..':endmessage:') or '#fuck_you_Mother_FUKCER'),'html')
