@@ -2388,6 +2388,7 @@ tdbot.Action(msg.chat_id,'Typing')
 end
 end
 end
+end
         GetMessages(data.message,data)
         local msg = data.message;elseif data._ == 'updateDeleteMessages'  then
             print'Message Has Been Deleted'
