@@ -120,11 +120,11 @@ if redis:get(my..'pIN:h:'..msg.chat_id) and not is_sudo(msg) then
         if redis:get(my..'TextType:') == 'Mention' then
   tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),my)
         elseif redis:get(my..'TextType:') == 'Code' then
-        tdbot.send(msg.chat_id,msg.id,'`'..cernerw..'`','md')
+        tdbot.sender(msg.chat_id,msg.id,'`'..cernerw..'`','md')
     elseif redis:get(my..'TextType:') == 'Bold' then
-        tdbot.send(msg.chat_id,msg.id,'*'..cernerw..'*','md')
+        tdbot.sender(msg.chat_id,msg.id,'*'..cernerw..'*','md')
     elseif redis:get(my..'TextType:') == 'Italic' then
-        tdbot.send(msg.chat_id,msg.id,'_'..cernerw..'_','md')
+        tdbot.sender(msg.chat_id,msg.id,'_'..cernerw..'_','md')
     end
 end
 if cerner == 'self on' and is_sudo(msg) then
