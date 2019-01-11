@@ -1166,7 +1166,7 @@ local calca = cerner:match('^calc (.*)')
 Calculate(msg,calca)
 end
 if cerner == 'backup' then
-io.popen('cd .. && zip SELF-BOT.zip Self-Bot')
+io.popen('cd .. && zip SELF-BOT.zip Self-Bot-PRO')
 tdbot.send(msg.chat_id,msg.id,'Ziping Folder !','md')
 usergetid = io.popen('whoami')
 if usergetid == 'root' then
