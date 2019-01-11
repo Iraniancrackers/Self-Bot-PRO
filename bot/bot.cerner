@@ -1182,7 +1182,7 @@ tdbot.sendDocument(my,0,'/var/lib/redis/dump.rdb','redis.rdb')
 tdbot.send(msg.chat_id,msg.id,'Sended to SAVED MESSAGE !','md')
 --else
 --tdbot.send(msg.chat_id,msg.id,'ERROR : FILE NOT FOUND !','md')
-end
+--end
 ----------
 else
 
