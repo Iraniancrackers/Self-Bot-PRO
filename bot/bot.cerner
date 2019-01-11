@@ -784,9 +784,13 @@ end
 end
 if cerner and cerner:match('^1 to (%d+)') and redis:get(my..'numberfucking') then
 numberget = cerner:match('^1 to (%d+)')
+w = 0
 tdbot.deleteMessages(msg.chat_id,{[0] =msg.id})
 for i=1,tonumber(numberget) do
-tdbot.sendText(msg.chat_id,0,i,'html')
+print (i..' in I')
+w= w + tonumber(numberget)
+print(w)
+tdbot.sendText(msg.chat_id,0,tonumber(i),'html')
 end
 tdbot.sendText(msg.chat_id,0,(redis:get(my..':endmessage:') or '#fuck_you_Mother_FUKCER'),'html')
 end
