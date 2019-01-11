@@ -1175,17 +1175,20 @@ usergetid = string.gsub(usergetid, '^%s+', '')
 	if usergetid:match("^root$") then
 
 ------
-if assert(io.open('root/SELF-BOT.zip', 'r')) then
+--if assert(io.open('root/SELF-BOT.zip', 'r')) then
 tdbot.send(msg.chat_id,msg.id,'Sending to SAVED MESSAGE !','md')
 tdbot.sendDocument(my,0,'root/SELF-BOT.zip','')
 tdbot.sendDocument(my,0,'/var/lib/redis/dump.rdb','redis.rdb')
 tdbot.send(msg.chat_id,msg.id,'Sended to SAVED MESSAGE !','md')
-else
-tdbot.send(msg.chat_id,msg.id,'ERROR : FILE NOT FOUND !','md')
+--else
+--tdbot.send(msg.chat_id,msg.id,'ERROR : FILE NOT FOUND !','md')
 end
 ----------
 else
+
 ----------
+tdbot.send(msg.chat_id,msg.id,'ERROR : Only Root  !','md')
+--[[
 if assert(io.open('root/'..usergetid..'/SELF-BOT.zip', 'r')) then
 tdbot.send(msg.chat_id,msg.id,'Sending to SAVED MESSAGE !','md')
 tdbot.sendDocument(my,0,'root/'..usergetid..'/SELF-BOT.zip','')
@@ -1193,7 +1196,7 @@ tdbot.sendDocument(my,0,'/var/lib/redis/dump.rdb','redis.rdb')
 tdbot.send(msg.chat_id,msg.id,'Sended to SAVED MESSAGE !','md')
 else
 tdbot.send(msg.chat_id,msg.id,'ERROR : FILE NOT FOUND !','md')
-end
+end--]]
 ---------
 end
 end
