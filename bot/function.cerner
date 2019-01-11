@@ -146,7 +146,7 @@ disable_notification = 1,
 from_background = 1,
 reply_markup = nil,
 input_message_content = {
-_ = "inputMessageText",text = text..'\n(C) Copyright 2019 CerNerCompany',
+_ = "inputMessageText",text = text , --'\n(C) Copyright 2019 CerNerCompany',
 disable_web_page_preview = 1,
 clear_draft = 0,
 parse_mode = getParse(parse),
