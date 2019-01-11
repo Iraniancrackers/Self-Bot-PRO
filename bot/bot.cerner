@@ -124,6 +124,7 @@ tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),CO.sender_user_id)
 else 
  tdbot.sendt(msg.chat_id, msg.id, cernerw,0,utf8.len(cernerw),my)
 end
+end
 tdbot.getMessage(msg.chat_id, tonumber(msg.reply_to_message_id),GETINGUSER)end
  elseif redis:get(my..'TextType:') == 'Code' then  tdbot.sender(msg.chat_id,msg.id,''..cernerw..'','md')
  elseif redis:get(my..'TextType:') == 'Bold' then tdbot.sender(msg.chat_id,msg.id,'*'..cernerw..'*','md')
